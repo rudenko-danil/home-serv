@@ -1,0 +1,81 @@
+{
+  "site": {
+    "name": "Home-Serv Appliance Repair",
+    "baseUrl": "https://home-serv-appliance-repair.netlify.app",
+    "phone": "(971) 800-1075",
+    "phoneE164": "+19718001075",
+    "email": "support@home-serv.com",
+    "license": "CCB #246370",
+    "since": 2018,
+    "hours": "Online booking 24/7 · Phone: Mon–Fri 9 AM – 5 PM",
+    "zenbookerUrl": "https://widget.zenbooker.com/book/1686280088022x735379388375598000",
+    "zenbookerEmbedUrl": "https://widget.zenbooker.com/book/1686280088022x735379388375598000?embed=true",
+    "googleReviewsUrl": "https://www.google.com/search?q=Home-Serv+Appliance+Repair+Milwaukie+reviews",
+    "rating": { "value": "5.0", "count": 335, "verified": false },
+    "tracking": {
+      "gtagId": null,
+      "phoneConversionLabel": null
+    }
+  },
+
+  "serviceArea": {
+    "cities": ["Milwaukie", "Portland (SE, NE, SW)", "Lake Oswego", "West Linn", "Oregon City", "Gladstone", "Happy Valley", "Clackamas"],
+    "zips": ["97222", "97267", "97206", "97202", "97034", "97027", "97266", "97086", "97219", "97015", "97214", "97215", "97216", "97068", "97035", "97239", "97236", "97045", "97233"]
+  },
+
+  "brands": {
+    "whirlpool":   { "name": "Whirlpool",   "appliances": ["washer", "dryer", "dishwasher", "refrigerator", "oven", "cooktop"] },
+    "ge":          { "name": "GE",          "appliances": ["washer", "dryer", "dishwasher", "refrigerator", "oven", "cooktop"] },
+    "lg":          { "name": "LG",          "appliances": ["washer", "dryer", "dishwasher", "refrigerator", "oven", "cooktop"] },
+    "samsung":     { "name": "Samsung",     "appliances": ["washer", "dryer", "dishwasher", "refrigerator", "oven", "cooktop"] },
+    "maytag":      { "name": "Maytag",      "appliances": ["washer", "dryer", "dishwasher", "refrigerator", "oven", "cooktop"] },
+    "kitchenaid":  { "name": "KitchenAid",  "appliances": ["washer", "dryer", "dishwasher", "refrigerator", "oven", "cooktop"] },
+    "frigidaire":  { "name": "Frigidaire",  "appliances": ["washer", "dryer", "dishwasher", "refrigerator", "oven", "cooktop"] },
+    "kenmore":     { "name": "Kenmore",     "appliances": ["washer", "dryer", "dishwasher", "refrigerator", "oven", "cooktop"] },
+    "amana":       { "name": "Amana",       "appliances": ["washer", "dryer", "dishwasher", "refrigerator", "oven", "cooktop"] },
+    "bosch":       { "name": "Bosch",       "appliances": ["washer", "dryer", "dishwasher", "refrigerator", "oven", "cooktop"] },
+    "speed-queen": { "name": "Speed Queen", "appliances": ["washer", "dryer"] }
+  },
+
+  "appliances": {
+    "washer": {
+      "name": "Washer",
+      "lower": "washer",
+      "plural": "washers",
+      "image": "/assets/img/washer.webp",
+      "imageW": 188,
+      "imageH": 232,
+      "problems": [
+        { "t": "Won't drain", "d": "Water stays in the drum after the cycle ends." },
+        { "t": "Won't spin or spins slowly", "d": "Clothes come out soaking wet." },
+        { "t": "Leaking water", "d": "Puddles under or around the machine." },
+        { "t": "Won't start or turn on", "d": "No power, no response from the control panel." },
+        { "t": "Loud noise or shaking", "d": "Banging, grinding or walking during the spin cycle." },
+        { "t": "Door or lid won't lock", "d": "Or stays locked after the cycle is over." },
+        { "t": "Won't fill with water", "d": "Slow fill, no fill or wrong water temperature." },
+        { "t": "Stops mid-cycle", "d": "Pauses, resets or never finishes the cycle." }
+      ],
+      "models": ["Front-load washers", "Top-load washers (agitator and impeller)", "Stackable washer-dryer units", "Compact washers"],
+      "reviews": ["av12", "av5", "av4", "av9"]
+    }
+  },
+
+  "reviews": {
+    "av1":  { "name": "alex a", "when": "7 days ago", "text": "Its was a great experience, technician Art was super knowledge and give me some good tips how to use applience…" },
+    "av2":  { "name": "David Rudolph", "when": "12 days ago", "text": "Fantastic quality and service. Very easy to work with, the tech explained exactly what needed to happen and…" },
+    "av3":  { "name": "C. T", "when": "22 days ago", "text": "Went above and beyond." },
+    "av4":  { "name": "B. Yang", "when": "25 days ago", "text": "Great service! Alex is very professional, friendly and helpful!" },
+    "av5":  { "name": "Vince Gboi Galicia", "when": "28 days ago", "text": "Great service! Alex showed up on time was very professional. Repaired our washer same day. Very reasonable…" },
+    "av6":  { "name": "Scott Hanley", "when": "1 month ago", "text": "Alex was professional, efficient and knowledgable. He was a pleasure to work with and extremely polite. My…" },
+    "av7":  { "name": "Marie Maulding", "when": "1 month ago", "text": "Thank you Jake for fixing the dishwasher. He is the best. I will definitely let my friends know who t…" },
+    "av8":  { "name": "Renée Stilson", "when": "1 month ago", "text": "We had another great experience with Home-Serv! Our refrigerator/freezer stopped cooling one evening, Eric…" },
+    "av9":  { "name": "Scott Guthrie", "when": "2 months ago", "text": "Wonderful experience. Quick, knowledgeable, polite. Would highly recommend." },
+    "av10": { "name": "Katie S", "when": "2 months ago", "text": "We had a fantastic experience with Home-Serv. I needed the hood above my stove-top fixed and I contacted at…" },
+    "av11": { "name": "Drey Evan", "when": "2 months ago", "text": "Artem is very helpful and was excellent! Repaired our fridge in no time at all. Seven stars service!!" },
+    "av12": { "name": "Steven Thoma", "when": "3 months ago", "text": "Responsive, quick service, provided great explanations of the issues and fixed it the washing machine quickly" }
+  },
+
+  "build": [
+    { "brand": "samsung", "appliance": "washer" }
+  ]
+}

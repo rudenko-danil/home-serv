@@ -33,6 +33,10 @@
   --shadow: 0 1px 2px rgba(0, 24, 70, .05), 0 12px 32px -14px rgba(0, 24, 70, .18);
   color-scheme: light;
 }
+[hidden] { display: none !important; }
+html, body { margin: 0; }
+img { max-width: 100%; }
+:root { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; scroll-padding-top: 84px; }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } * { transition: none !important; } }

@@ -1,0 +1,518 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Home-Serv Appliance Repair</title>
+<meta name="description" content="Licensed, bonded and insured appliance repair in Milwaukie and Portland, OR since 2018. $99 diagnostic waived with repair, 60-day warranty on parts and labor.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@125,800;125,900&family=Montserrat:wght@400;500;600;700&display=swap">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"HomeAndConstructionBusiness","name":"Home-Serv Appliance Repair","telephone":"+1-971-800-1075","email":"support@home-serv.com","areaServed":["Milwaukie, OR","Portland, OR"],"foundingDate":"2018","openingHours":"Mo-Fr 09:00-17:00","aggregateRating":{"@type":"AggregateRating","ratingValue":"5.0","reviewCount":"335"}}
+</script>
+<style>
+/* Layout: the Tilda page's identity (navy + sky blue, expanded black headings, same block order), tightened into a 1160 grid with real cards, aligned buttons and a trust row. */
+:root {
+  --navy: #001846;
+  --navy-2: #0A2A6B;
+  --blue: #20A1FF;
+  --blue-d: #0B86E8;
+  --bg: #F6F9FE;
+  --white: #FFFFFF;
+  --text: #16213A;
+  --muted: #55607A;
+  --circle: #CAE9FD;
+  --line: #D6E5F5;
+  --num: #E1EEFE;
+  --star: #FBBC05;
+  --gblue: #1A73E8;
+  --f-display: "Archivo", "Arial Black", Arial, sans-serif;
+  --f-body: "Montserrat", "Segoe UI", Arial, sans-serif;
+  --r: 22px;
+  --shadow: 0 1px 2px rgba(0, 24, 70, .05), 0 12px 32px -14px rgba(0, 24, 70, .18);
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 84px; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } * { transition: none !important; } }
+body { background: var(--bg); color: var(--text); font-family: var(--f-body); font-size: 16px; line-height: 1.55; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 50; background: var(--navy); }
+a { color: inherit; text-decoration: none; }
+img { display: block; }
+button { font: inherit; cursor: pointer; }
+:focus-visible { outline: 3px solid var(--blue); outline-offset: 3px; }
+h1, h2, h3 { margin: 0; font-family: var(--f-display); font-stretch: 125%; font-weight: 900; color: var(--navy); text-wrap: balance; }
+p { margin: 0; }
+
+.wrap {
+  width: 100%; max-width: 1192px; margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+  min-height: 48px; padding: 0 26px; border-radius: 999px; border: 0;
+  background: var(--blue); color: #fff; font-family: var(--f-body); font-weight: 600; font-size: 16px; letter-spacing: .01em;
+  box-shadow: 0 3px 0 var(--navy); transition: transform .15s ease, box-shadow .15s ease, background .15s ease; white-space: nowrap;
+}
+.btn:hover { background: var(--blue-d); transform: translateY(-2px); box-shadow: 0 5px 0 var(--navy); }
+.btn:active { transform: translateY(1px); box-shadow: 0 1px 0 var(--navy); }
+.btn.lg { min-height: 60px; padding: 0 38px; font-size: 19px; text-transform: uppercase; letter-spacing: .03em; font-weight: 600; }
+.btn.line { background: transparent; color: var(--navy); box-shadow: inset 0 0 0 2px var(--navy); }
+.btn.line:hover { background: var(--navy); color: #fff; box-shadow: inset 0 0 0 2px var(--navy); }
+.btn svg { width: 18px; height: 18px; flex: none; }
+
+.eyebrow { display: flex; align-items: center; gap: 12px; font-size: 18px; font-weight: 500; letter-spacing: .06em; color: var(--navy); text-transform: uppercase; }
+.eyebrow::before { content: ""; width: 36px; height: 3px; border-radius: 2px; background: var(--blue); flex: none; }
+.big { font-size: clamp(28px, 4.2vw, 46px); line-height: 1.12; text-transform: uppercase; margin-top: 14px; }
+.big .b { color: var(--blue); display: block; }
+.h2c { text-align: center; font-size: clamp(26px, 3.4vw, 38px); text-transform: uppercase; }
+.lead-c { text-align: center; color: var(--muted); max-width: 560px; margin: 14px auto 0; }
+.sec { padding-block: 96px 0; }
+.dots { position: absolute; pointer-events: none; background-image: radial-gradient(circle, #C9DEF8 5px, transparent 5.5px); background-size: 18px 18px; }
+.stars { display: inline-flex; gap: 2px; }
+.stars svg { width: 15px; height: 15px; fill: var(--star); }
+
+/* Header */
+header.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 40; background: var(--navy); }
+header.top .wrap { display: flex; align-items: center; gap: 36px; min-height: 72px; }
+.logo { width: 52px; height: 46px; object-fit: cover; border-radius: 4px; flex: none; }
+nav.main { display: flex; gap: 28px; }
+nav.main a { color: rgba(255,255,255,.88); font-weight: 600; font-size: 14.5px; position: relative; padding-block: 6px; }
+nav.main a::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 2px; background: var(--blue); transform: scaleX(0); transition: transform .2s ease; }
+nav.main a:hover { color: #fff; }
+nav.main a:hover::after { transform: scaleX(1); }
+.hdr-r { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+.hdr-phone { display: inline-flex; align-items: center; gap: 10px; height: 44px; padding: 0 18px; border: 1px solid rgba(32,161,255,.55); border-radius: 999px; color: #fff; font-weight: 600; font-size: 15px; white-space: nowrap; }
+.hdr-phone svg { width: 17px; height: 17px; color: var(--blue); }
+.hdr-phone:hover { border-color: var(--blue); }
+.hdr-r .btn { min-height: 44px; padding: 0 20px; font-size: 14.5px; box-shadow: none; }
+.hdr-r .btn:hover { box-shadow: none; transform: none; }
+@media (max-width: 1080px) { nav.main { gap: 18px; } nav.main a[href="#reviews"] { display: none; } }
+@media (max-width: 920px) { nav.main { display: none; } }
+@media (max-width: 520px) { .hdr-phone span { display: none; } .hdr-phone { width: 44px; padding: 0; justify-content: center; } header.top .wrap { gap: 12px; min-height: 64px; } }
+
+/* Hero */
+.hero { position: relative; overflow: hidden; background:
+  radial-gradient(420px 360px at 4% 100%, rgba(93,180,255,.38), transparent 70%),
+  radial-gradient(520px 480px at 82% 42%, rgba(93,180,255,.30), transparent 70%), var(--bg); }
+.hero .dots.d1 { top: 20px; right: 48px; width: 162px; height: 44px; opacity: .55; }
+.hero .dots.d2 { left: 24px; bottom: 0; width: 162px; height: 72px; opacity: .6; }
+.hero-in { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.02fr); align-items: center; gap: 24px; min-height: 600px; }
+.hero-text { position: relative; z-index: 2; padding-block: 64px; }
+.hero h1 { font-size: clamp(32px, 4.6vw, 54px); line-height: 1.1; text-transform: uppercase; margin-top: 18px; }
+.hero h1 .b { color: var(--blue); display: block; }
+.hero-sub { margin-top: 20px; font-size: 18px; color: var(--muted); max-width: 30em; }
+.hero-ctas { margin-top: 34px; display: flex; flex-wrap: wrap; align-items: center; gap: 14px 22px; }
+.call-link { display: inline-flex; align-items: center; gap: 10px; font-weight: 700; color: var(--navy); font-size: 17px; }
+.call-link svg { width: 40px; height: 40px; padding: 10px; border-radius: 50%; background: var(--circle); color: var(--navy); }
+.call-link:hover span { text-decoration: underline; text-decoration-color: var(--blue); text-underline-offset: 4px; }
+.trust { margin-top: 38px; display: flex; flex-wrap: wrap; gap: 12px 28px; padding-top: 22px; border-top: 1px solid var(--line); font-size: 14px; color: var(--navy); }
+.trust > div { display: flex; align-items: center; gap: 8px; }
+.trust b { font-weight: 700; }
+.trust svg.gi { width: 18px; height: 18px; }
+.trust .chk { width: 18px; height: 18px; color: var(--blue); }
+.hero-img-wrap { position: relative; align-self: end; height: 100%; display: flex; align-items: flex-end; justify-content: flex-end; margin-right: calc(-1 * max(16px, env(safe-area-inset-right, 0px))); }
+.hero-img { width: 100%; max-width: 620px; height: auto; aspect-ratio: 892 / 955; object-fit: cover;
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 9%); mask-image: linear-gradient(90deg, transparent 0, #000 9%); }
+@media (max-width: 880px) {
+  .hero-in { grid-template-columns: minmax(0,1fr); min-height: 0; gap: 0; }
+  .hero-text { padding-block: 44px 8px; }
+  .hero-img-wrap { margin-left: 15%; }
+  .hero .dots.d1 { display: none; }
+}
+
+/* Commitment */
+.commit .row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 56px; align-items: center; }
+.commit img { width: 100%; max-width: 100%; aspect-ratio: 602 / 430; object-fit: cover; border-radius: var(--r); box-shadow: var(--shadow); }
+.commit h2 { font-size: clamp(28px, 3.4vw, 40px); line-height: 1.12; text-transform: uppercase; }
+.commit p { margin-top: 16px; font-size: 17px; color: var(--muted); max-width: 32em; }
+.commit p + p { margin-top: 12px; }
+.commit .btn { margin-top: 28px; }
+.feats { margin-top: 64px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 20px; }
+.feat { background: var(--white); border: 1px solid var(--line); border-radius: var(--r); padding: 28px 22px 26px; text-align: center; transition: transform .2s ease, box-shadow .2s ease; }
+.feat:hover { transform: translateY(-4px); box-shadow: var(--shadow); }
+.feat img { width: 76px; height: 76px; margin: 0 auto; border-radius: 50%; mix-blend-mode: multiply; }
+.feat h3 { font-size: 17px; line-height: 1.25; margin-top: 18px; }
+.feat p { font-size: 14px; line-height: 1.45; color: var(--muted); margin-top: 10px; }
+@media (max-width: 880px) { .commit .row { grid-template-columns: minmax(0,1fr); gap: 30px; } .feats { grid-template-columns: repeat(2, minmax(0,1fr)); } }
+@media (max-width: 400px) { .feats { gap: 12px; } .feat { padding: 22px 14px; } .feat h3 { font-size: 15px; } }
+
+/* Services */
+.services { position: relative; }
+.services .dots.d3 { right: 40px; top: 70px; width: 144px; height: 144px; opacity: .55; }
+.services .dots.d4 { left: 0; top: 620px; width: 162px; height: 234px; opacity: .55; }
+.sv-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 20px 40px; }
+.sv-head p { color: var(--muted); max-width: 26em; }
+.cards { position: relative; z-index: 1; margin-top: 44px; display: flex; flex-wrap: wrap; justify-content: center; gap: 22px; }
+.card { flex: 0 1 calc((100% - 66px) / 4); min-width: 236px; background: linear-gradient(180deg, #EEF6FF 0%, #FFFFFF 46%); border: 1px solid var(--line); border-radius: var(--r); padding: 18px 20px 22px; display: flex; flex-direction: column; transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease; }
+.card:hover { transform: translateY(-5px); box-shadow: var(--shadow); border-color: #B7D6F2; }
+.card-top { display: flex; align-items: flex-start; justify-content: space-between; height: 150px; }
+.card-top .ico { width: 78px; height: 78px; margin-top: 4px; border-radius: 50%; mix-blend-mode: multiply; }
+.card-top .prod { height: 144px; width: auto; max-width: 128px; object-fit: contain; mix-blend-mode: multiply; transition: transform .25s ease; }
+.card:hover .prod { transform: scale(1.04); }
+.card h3 { font-size: 17px; line-height: 1.22; margin-top: 16px; }
+.card p { font-size: 14px; line-height: 1.5; color: var(--muted); margin-top: 8px; flex: 1; }
+.card .btn { margin-top: 20px; min-height: 42px; font-size: 15px; width: 100%; box-shadow: 0 2px 0 var(--navy); }
+.card .btn:hover { box-shadow: 0 4px 0 var(--navy); }
+@media (max-width: 560px) { .card { flex-basis: 100%; min-width: 0; } .services .dots { display: none; } }
+
+/* How it works */
+.steps { margin-top: 60px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px; counter-reset: s; }
+.step { position: relative; background: var(--white); border: 1px solid var(--line); border-radius: var(--r); padding: 30px 28px 30px; overflow: hidden; }
+.step-n { position: absolute; top: -18px; right: 14px; font-family: var(--f-display); font-stretch: 125%; font-weight: 900; font-size: 128px; line-height: 1; color: var(--num); }
+.step-dot { position: relative; width: 52px; height: 52px; border-radius: 50%; background: var(--blue); color: #fff; display: grid; place-items: center; font-family: var(--f-display); font-stretch: 125%; font-weight: 900; font-size: 20px; box-shadow: 0 3px 0 var(--navy); }
+.step h3 { position: relative; margin-top: 22px; font-size: 19px; line-height: 1.2; text-transform: uppercase; }
+.step p { position: relative; margin-top: 10px; font-size: 15px; color: var(--muted); }
+.step p b { color: var(--navy); white-space: nowrap; }
+.steps-cta { margin-top: 36px; display: flex; justify-content: center; }
+@media (max-width: 860px) { .steps { grid-template-columns: minmax(0,1fr); } }
+
+/* Reviews */
+.rv-head { margin-top: 44px; background: var(--white); border: 1px solid var(--line); border-radius: var(--r); padding: 22px 26px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.rv-score { display: flex; align-items: center; gap: 16px; }
+.rv-score .gi { width: 44px; height: 44px; }
+.rv-score .num { font-family: var(--f-display); font-stretch: 125%; font-weight: 900; font-size: 34px; color: var(--navy); line-height: 1; }
+.rv-score .meta { font-size: 13.5px; color: var(--muted); }
+.rv-score .stars svg { width: 18px; height: 18px; }
+.rv-head .btn { min-height: 44px; font-size: 15px; box-shadow: none; }
+.rv-head .btn:hover { box-shadow: none; transform: none; }
+.rv-grid { margin-top: 20px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 18px; }
+.rv { background: var(--white); border: 1px solid var(--line); border-radius: 18px; padding: 20px; min-width: 0; display: flex; flex-direction: column; }
+.rv-who { display: flex; align-items: center; gap: 10px; }
+.rv-who img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; flex: none; }
+.rv-who b { display: flex; align-items: center; gap: 5px; font-size: 14.5px; color: var(--navy); line-height: 1.25; }
+.rv-who b svg { width: 13px; height: 13px; flex: none; }
+.rv-who span { display: block; font-size: 12.5px; color: var(--muted); }
+.rv .stars { margin-top: 14px; }
+.rv p { margin-top: 8px; font-size: 14px; line-height: 1.55; color: var(--text); flex: 1; }
+.rv-foot { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 12.5px; color: var(--muted); }
+.rv-foot span { display: flex; align-items: center; gap: 6px; }
+.rv-foot svg { width: 16px; height: 16px; }
+.rv-foot a { color: var(--gblue); font-weight: 600; }
+.rv.extra { display: none; }
+.rv-grid.all .rv.extra { display: flex; }
+.load { display: flex; justify-content: center; margin-top: 26px; }
+@media (max-width: 1020px) { .rv-grid { grid-template-columns: repeat(2, minmax(0,1fr)); } }
+@media (max-width: 560px) { .rv-grid { grid-template-columns: minmax(0,1fr); } }
+
+/* On call */
+.oncall-box { position: relative; overflow: hidden; background: var(--navy); border-radius: 30px; padding: 30px 44px; display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr) minmax(0, 1.2fr) auto; align-items: center; gap: 24px 36px; color: #fff; }
+.oncall-box::after { content: ""; position: absolute; right: -80px; top: -120px; width: 320px; height: 320px; border-radius: 50%; background: radial-gradient(closest-side, rgba(32,161,255,.35), transparent); pointer-events: none; }
+.oc { position: relative; display: flex; align-items: center; gap: 16px; min-width: 0; }
+.oc-ico { flex: none; display: grid; place-items: center; background: var(--blue); color: #fff; width: 52px; height: 52px; border-radius: 14px; }
+.oc-ico.round { border-radius: 50%; width: 60px; height: 60px; }
+.oc-ico svg { width: 56%; height: 56%; }
+.oc h3 { color: #fff; font-family: var(--f-display); font-weight: 800; font-size: 18px; }
+.oc .hrs { color: var(--blue); font-size: 15px; font-weight: 500; margin-top: 2px; }
+.oc .lbl { display: block; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: rgba(255,255,255,.6); }
+.oc .val { display: block; font-size: 16.5px; font-weight: 600; overflow-wrap: anywhere; }
+a.oc:hover .val { text-decoration: underline; text-decoration-color: var(--blue); text-underline-offset: 4px; }
+.oncall-box .btn { position: relative; box-shadow: none; background: #fff; color: var(--navy); }
+.oncall-box .btn:hover { background: var(--blue); color: #fff; box-shadow: none; }
+@media (max-width: 1020px) { .oncall-box { grid-template-columns: minmax(0,1fr) minmax(0,1fr); padding: 28px; } }
+@media (max-width: 560px) { .oncall-box { grid-template-columns: minmax(0,1fr); } .oncall-box .btn { justify-self: start; } }
+
+/* Footer */
+footer { background: var(--navy); color: #fff; margin-top: 110px; }
+footer .wrap { padding-block: 56px 28px; }
+.foot-row { display: grid; grid-template-columns: minmax(0, 1.4fr) repeat(3, minmax(0, 1fr)); gap: 32px; }
+.foot-row img { width: 96px; height: 84px; object-fit: cover; border-radius: 6px; }
+.foot-about { color: rgba(255,255,255,.7); font-size: 14.5px; margin-top: 16px; max-width: 24em; }
+footer h4 { margin: 0 0 14px; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: rgba(255,255,255,.55); font-weight: 600; }
+.foot-col { display: grid; gap: 10px; align-content: start; }
+.foot-col a, .foot-col span { font-size: 15px; font-weight: 500; }
+.foot-col a:hover { color: var(--blue); }
+.foot-col .btn { margin-top: 6px; justify-self: start; box-shadow: none; }
+.foot-col .btn:hover { box-shadow: none; color: #fff; }
+.foot-note { margin-top: 44px; padding-top: 22px; border-top: 1px solid rgba(255,255,255,.12); display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 24px; font-size: 13px; color: rgba(255,255,255,.55); }
+@media (max-width: 860px) { .foot-row { grid-template-columns: minmax(0,1fr) minmax(0,1fr); } .foot-row > :first-child { grid-column: 1 / -1; } }
+
+/* Floating call (desktop) + sticky bar (mobile) */
+.fab { position: fixed; z-index: 30; right: calc(24px + env(safe-area-inset-right, 0px)); bottom: calc(24px + env(safe-area-inset-bottom, 0px)); width: 58px; height: 58px; border-radius: 50%; background: #23A55A; color: #fff; display: grid; place-items: center; box-shadow: 0 8px 24px rgba(35,165,90,.45); }
+.fab::before { content: ""; position: absolute; inset: 0; border-radius: 50%; border: 2px solid #23A55A; animation: ping 2.2s ease-out infinite; }
+@keyframes ping { from { transform: scale(1); opacity: .8; } to { transform: scale(1.6); opacity: 0; } }
+.fab svg { width: 26px; height: 26px; }
+.mbar { display: none; }
+@media (max-width: 700px) {
+  .fab { display: none; }
+  .mbar { display: grid; grid-template-columns: 1fr 1.3fr; gap: 10px; position: fixed; z-index: 30; left: 0; right: 0; bottom: 0; background: rgba(255,255,255,.96); backdrop-filter: blur(8px); border-top: 1px solid var(--line);
+    padding: 10px max(12px, env(safe-area-inset-right, 0px)) calc(10px + env(safe-area-inset-bottom, 0px)) max(12px, env(safe-area-inset-left, 0px)); }
+  .mbar .btn { min-height: 46px; padding: 0 12px; font-size: 15px; box-shadow: none; }
+  .mbar .btn.line { box-shadow: inset 0 0 0 2px var(--navy); }
+  footer .wrap { padding-bottom: 96px; }
+}
+
+/* Booking popup — mirrors Tilda's T868 "popup with embed code": dark overlay, white window, cross in the screen corner */
+.t-popup { position: fixed; inset: 0; z-index: 60; background: rgba(0, 0, 0, .8); overflow-y: auto; display: flex; align-items: center; justify-content: center;
+  padding: calc(60px + env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) calc(40px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
+  animation: tfade .3s ease; }
+@keyframes tfade { from { opacity: 0; } to { opacity: 1; } }
+.t-popup__box { width: 100%; max-width: 760px; background: #fff; border-radius: 10px; overflow: hidden; animation: tup .35s ease; }
+@keyframes tup { from { transform: translateY(24px); opacity: 0; } to { transform: none; opacity: 1; } }
+.t-close { position: fixed; top: calc(20px + env(safe-area-inset-top, 0px)); right: calc(20px + env(safe-area-inset-right, 0px)); width: 44px; height: 44px; border: 0; background: none; color: #fff; display: grid; place-items: center; z-index: 61; }
+.t-close svg { width: 23px; height: 23px; }
+.t-close:hover { opacity: .7; }
+.embed-slot { min-height: 380px; }
+.embed-slot iframe { display: block; width: 100%; min-height: 600px; border: 0; }
+.zen-wrapper { box-shadow: none !important; border: 0 !important; border-radius: 0 !important; }
+.zenbooker-inline-widget { height: min(640px, calc(100vh - 140px)) !important; }
+.zen-fallback { min-height: 380px; display: grid; place-content: center; justify-items: center; gap: 12px; text-align: center; padding: 40px 28px; color: var(--muted); font-size: 15px; }
+.zen-fallback > b { font-family: var(--f-display); font-stretch: 125%; font-weight: 900; color: var(--navy); font-size: 22px; text-transform: uppercase; }
+.zen-fallback .btn { margin-top: 8px; }
+.zen-fallback .small { font-size: 13.5px; }
+.zen-fallback .small b { color: var(--navy); }
+</style>
+</head>
+<body>
+
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="star" viewBox="0 0 24 24"><path d="M12 2.2l2.9 6.6 7.1.6-5.4 4.7 1.6 7-6.2-3.7-6.2 3.7 1.6-7L2 9.4l7.1-.6z"/></symbol>
+    <symbol id="g" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></symbol>
+    <symbol id="ok" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#1A73E8"/><path d="M7 12.5l3.2 3.2L17 9" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="chk" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="currentColor"/><path d="M7 12.5l3.2 3.2L17 9" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="phone" viewBox="0 0 24 24"><path fill="currentColor" d="M6.6 10.8a15.2 15.2 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1z"/></symbol>
+    <symbol id="mailfill" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2" fill="currentColor"/><path d="M3 6.5l9 6.5 9-6.5" fill="none" stroke="#20A1FF" stroke-width="1.8" stroke-linejoin="round"/></symbol>
+    <symbol id="headset" viewBox="0 0 24 24"><path d="M4 14v-2a8 8 0 0 1 16 0v2" fill="none" stroke="currentColor" stroke-width="2"/><rect x="3" y="13" width="4.5" height="7" rx="2" fill="currentColor"/><rect x="16.5" y="13" width="4.5" height="7" rx="2" fill="currentColor"/><path d="M19 20c0 1.5-2 2.2-5 2.2" fill="none" stroke="currentColor" stroke-width="1.6"/></symbol>
+    <symbol id="cal" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3 10h18M8 3v4M16 3v4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="chev" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="ring" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.8" d="M6.6 10.8a15.2 15.2 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1z"/><path d="M14 2.5a7.5 7.5 0 0 1 7.5 7.5M14 6a4 4 0 0 1 4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+  </defs>
+</svg>
+
+<header class="top">
+  <div class="wrap">
+    <a href="#top" aria-label="Home-Serv, home"><img class="logo" src="img/logo.png" alt="Home-Serv Appliance Repair"></a>
+    <nav class="main" aria-label="Main">
+      <a href="#services">Our Services</a>
+      <a href="#how">How It Works</a>
+      <a href="#reviews">Reviews</a>
+      <a href="#about">About Us</a>
+      <a href="#contact">Contact Us</a>
+    </nav>
+    <div class="hdr-r">
+      <a class="hdr-phone" href="tel:+19718001075" aria-label="Call 971-800-1075"><svg aria-hidden="true"><use href="#phone"/></svg><span>(971) 800-1075</span></a>
+      <a class="btn" href="#popup:embedcode" data-book>Schedule Service</a>
+    </div>
+  </div>
+</header>
+
+<main id="top">
+  <section class="hero">
+    <div class="dots d1"></div>
+    <div class="dots d2"></div>
+    <div class="wrap">
+      <div class="hero-in">
+        <div class="hero-text">
+          <p class="eyebrow">Certified specialists</p>
+          <h1><span class="b">Professional</span>Appliance repair</h1>
+          <p class="hero-sub">Repair of refrigerators, washers, dryers, dishwashers, ovens, stoves and garbage disposals in Milwaukie and Portland, OR.</p>
+          <div class="hero-ctas">
+            <a class="btn lg" href="#popup:embedcode" data-book>Schedule service</a>
+            <a class="call-link" href="tel:+19718001075"><svg aria-hidden="true"><use href="#phone"/></svg><span>(971) 800-1075</span></a>
+          </div>
+          <div class="trust">
+            <div><svg class="gi" aria-hidden="true"><use href="#g"/></svg><b>5.0</b><span class="stars" aria-label="5 out of 5"><svg><use href="#star"/></svg><svg><use href="#star"/></svg><svg><use href="#star"/></svg><svg><use href="#star"/></svg><svg><use href="#star"/></svg></span><span>335 reviews</span></div>
+            <div><svg class="chk" aria-hidden="true"><use href="#chk"/></svg>Licensed, Bonded &amp; Insured · CCB #246370</div>
+          </div>
+        </div>
+        <div class="hero-img-wrap">
+          <img class="hero-img" src="img/hero.jpg" alt="Kitchen and laundry appliances: refrigerator, range, washer, microwave and small appliances">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec commit" id="about">
+    <div class="wrap">
+      <div class="row">
+        <img src="img/about.jpg" alt="Technician repairing a kitchen hood while the homeowner watches">
+        <div>
+          <p class="eyebrow">About us</p>
+          <h2 style="margin-top:14px">Commitment to excellence</h2>
+          <p>Our local Appliance Repair Company in Milwaukie OR stands out from the rest due to our commitment to providing exceptional service.</p>
+          <p>We agree on the price before any work starts, and every repair is backed by a 60-day warranty on parts and labor.</p>
+          <a class="btn" href="#popup:embedcode" data-book>Schedule Service</a>
+        </div>
+      </div>
+      <div class="feats">
+        <div class="feat"><img src="img/f-wrench.png" alt=""><h3>Diagnostic Fee</h3><p>$99 per appliance, waived if you hire us for the repair</p></div>
+        <div class="feat"><img src="img/f-shield.png" alt=""><h3>60 Days Warranty</h3><p>Guarantee for parts and labor</p></div>
+        <div class="feat"><img src="img/f-pin.png" alt=""><h3>Serving Milwaukie</h3><p>and Portland, OR since 2018</p></div>
+        <div class="feat"><img src="img/f-coins.png" alt=""><h3>Affordable Rates</h3><p>Price agreed during diagnostics, no surprises</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec services" id="services">
+    <div class="dots d3"></div>
+    <div class="dots d4"></div>
+    <div class="wrap">
+      <div class="sv-head">
+        <div>
+          <p class="eyebrow">Our services</p>
+          <h2 class="big"><span class="b">Professional</span>Appliance repair</h2>
+        </div>
+        <p>We repair the major appliances in your kitchen and laundry room.</p>
+      </div>
+      <div class="cards">
+        <article class="card"><div class="card-top"><img class="ico" src="img/i-fridge.png" alt=""><img class="prod" src="img/p-fridge.png" alt="Side-by-side refrigerator"></div><h3>Refrigerator / Freezer Repairs</h3><p>Is your refrigerator or freezer running warm, making noise, or not maintaining temperature? We'll find the cause.</p><a class="btn" href="#popup:embedcode" data-book>More details</a></article>
+        <article class="card"><div class="card-top"><img class="ico" src="img/i-stove.png" alt=""><img class="prod" src="img/p-stove.png" alt="Gas range"></div><h3>Stove Repairs</h3><p>Do you have burner issues, such as burners that run too hot or fail to ignite, or an oven that isn't heating properly?</p><a class="btn" href="#popup:embedcode" data-book>More details</a></article>
+        <article class="card"><div class="card-top"><img class="ico" src="img/i-dish.png" alt=""><img class="prod" src="img/p-dish.png" alt="Built-in dishwasher"></div><h3>Dishwasher Repairs</h3><p>If your dishwasher is not powering on, starting or finishing a cycle, filling with water or washing dishes.</p><a class="btn" href="#popup:embedcode" data-book>More details</a></article>
+        <article class="card"><div class="card-top"><img class="ico" src="img/i-oven.png" alt=""><img class="prod" src="img/p-oven.png" alt="Built-in wall oven"></div><h3>Oven Repairs</h3><p>Not heating up, an unresponsive panel, running too hot or not hot enough, a broken glass door or a burnt-out light.</p><a class="btn" href="#popup:embedcode" data-book>More details</a></article>
+        <article class="card"><div class="card-top"><img class="ico" src="img/i-disposal.png" alt=""><img class="prod" src="img/p-disposal.png" alt="Garbage disposal unit"></div><h3>Garbage Disposal Repairs</h3><p>Is your garbage disposal not turning on, humming but not running, leaking water, or tripping the breaker?</p><a class="btn" href="#popup:embedcode" data-book>More details</a></article>
+        <article class="card"><div class="card-top"><img class="ico" src="img/i-washer.png" alt=""><img class="prod" src="img/p-washer.png" alt="Front-load washing machine"></div><h3>Washing Machine Repairs</h3><p>If your washing machine won't turn on, start or finish a cycle, or drain water.</p><a class="btn" href="#popup:embedcode" data-book>More details</a></article>
+        <article class="card"><div class="card-top"><img class="ico" src="img/i-dryer.png" alt=""><img class="prod" src="img/p-dryer.png" alt="Front-load dryer"></div><h3>Dryer Repairs</h3><p>If you live in Portland or Milwaukie and your dryer is not functioning properly, we are here to help.</p><a class="btn" href="#popup:embedcode" data-book>More details</a></article>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec how" id="how">
+    <div class="wrap">
+      <h2 class="h2c">How it works</h2>
+      <p class="lead-c">From the first call to a working appliance in three steps.</p>
+      <div class="steps">
+        <div class="step"><span class="step-n" aria-hidden="true">1</span><div class="step-dot">1</div><h3>Schedule an appointment</h3><p>Call or text <b>(971) 800-1075</b>, or use online booking. Please provide your name, address, phone number and appliance type with a brief description of the issue.</p></div>
+        <div class="step"><span class="step-n" aria-hidden="true">2</span><div class="step-dot">2</div><h3>Diagnostics</h3><p>During the diagnostic process, we will troubleshoot, discuss and agree upon the repair price and terms. If necessary, we will order any required spare parts to complete the repair.</p></div>
+        <div class="step"><span class="step-n" aria-hidden="true">3</span><div class="step-dot">3</div><h3>Repairs</h3><p>All repairs are completed as quickly as possible. Please note that payment of the agreed-upon amount is required upon completion of the repair.</p></div>
+      </div>
+      <div class="steps-cta"><a class="btn lg" href="#popup:embedcode" data-book>Book online</a></div>
+    </div>
+  </section>
+
+  <section class="sec reviews" id="reviews">
+    <div class="wrap">
+      <h2 class="h2c">What our customers say</h2>
+      <div class="rv-head">
+        <div class="rv-score">
+          <svg class="gi" aria-hidden="true"><use href="#g"/></svg>
+          <span class="num">5.0</span>
+          <div><span class="stars" aria-label="5 out of 5"><svg><use href="#star"/></svg><svg><use href="#star"/></svg><svg><use href="#star"/></svg><svg><use href="#star"/></svg><svg><use href="#star"/></svg></span><div class="meta">Based on 335 Google reviews</div></div>
+        </div>
+        <a class="btn" href="https://www.google.com/search?q=Home-Serv+Appliance+Repair+Milwaukie+reviews" target="_blank" rel="noopener">Review us on Google</a>
+      </div>
+      <div class="rv-grid" id="rv-grid"></div>
+      <div class="load"><button class="btn line" type="button" id="load-more">Load more reviews</button></div>
+    </div>
+  </section>
+
+  <section class="sec" id="contact">
+    <div class="wrap">
+      <div class="oncall-box">
+        <div class="oc"><span class="oc-ico round"><svg aria-hidden="true"><use href="#headset"/></svg></span><div><h3>We're On Call</h3><p class="hrs">Mon–Fri 9:00 AM – 5:00 PM</p></div></div>
+        <a class="oc" href="tel:+19718001075"><span class="oc-ico"><svg aria-hidden="true"><use href="#phone"/></svg></span><span><span class="lbl">Call or text</span><span class="val">(971) 800-1075</span></span></a>
+        <a class="oc" href="mailto:support@home-serv.com"><span class="oc-ico"><svg aria-hidden="true"><use href="#mailfill"/></svg></span><span><span class="lbl">Email</span><span class="val">support@home-serv.com</span></span></a>
+        <a class="btn" href="#popup:embedcode" data-book><svg aria-hidden="true"><use href="#cal"/></svg>Book online</a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-row">
+      <div>
+        <a href="#top"><img src="img/logo.png" alt="Home-Serv Appliance Repair"></a>
+        <p class="foot-about">Professional appliance repair in Milwaukie and Portland, OR since 2018.</p>
+      </div>
+      <div class="foot-col"><h4>Site</h4><a href="#top">Home Page</a><a href="#services">Services</a><a href="#about">About Us</a></div>
+      <div class="foot-col"><h4>More</h4><a href="#reviews">Reviews</a><a href="#contact">Contact Us</a></div>
+      <div class="foot-col"><h4>Contact</h4><a href="tel:+19718001075">(971) 800-1075</a><a href="mailto:support@home-serv.com" style="overflow-wrap:anywhere">support@home-serv.com</a><span>Mon–Fri 9:00 AM – 5:00 PM</span><a class="btn" href="#popup:embedcode" data-book>Book online</a></div>
+    </div>
+    <div class="foot-note"><span>© 2026 Home-Serv Appliance Repair</span><span>Licensed, Bonded &amp; Insured · CCB #246370</span></div>
+  </div>
+</footer>
+
+<a class="fab" href="tel:+19718001075" aria-label="Call (971) 800-1075"><svg aria-hidden="true"><use href="#ring"/></svg></a>
+<div class="mbar">
+  <a class="btn line" href="tel:+19718001075"><svg aria-hidden="true"><use href="#phone"/></svg>Call</a>
+  <a class="btn" href="#popup:embedcode" data-book>Book online</a>
+</div>
+
+<div class="t-popup" id="modal" hidden role="dialog" aria-modal="true" aria-label="Schedule service">
+  <button class="t-close" type="button" id="m-close" aria-label="Close"><svg viewBox="0 0 23 23" aria-hidden="true"><path d="M1 1l21 21M22 1L1 22" stroke="currentColor" stroke-width="2.4" stroke-linecap="square"/></svg></button>
+  <div class="t-popup__box">
+    <div class="embed-slot" id="booking-embed">
+      <!-- ======== PASTE THE THIRD-PARTY BOOKING EMBED CODE HERE ======== -->
+      <!-- Start Zenbooker Booking Inline Embed code --><link href="https://cdn.zenbooker.com/widget/latest/zenbooker.css" rel="stylesheet">
+      <script src="https://cdn.zenbooker.com/widget/latest/zenbooker.js"></script>
+      <div class="zen-wrapper" style="width: 100%; box-shadow: 0px 1px 8px rgba(0,0,0,0.08); border: 1px solid rgb(226, 226, 226); margin: auto; max-width: 1200px; overflow:hidden; position:relative; -moz-border-radius: 8px; -webkit-border-radius: 8px; border-radius: 8px;"> <div class="zenbooker-inline-widget" data-url="https://widget.zenbooker.com/book/1686280088022x735379388375598000?embed=true" style="min-width: 320px; height: 500px; border: 0; vertical-align: bottom; border-radius: 8px;"></div></div> <!-- End Zenbooker Booking Inline Embed code -->
+      <div class="zen-fallback" id="zen-fallback" hidden>
+        <b>Book your appointment</b>
+        <span>Choose your appliance, date and time in our online booking form.</span>
+        <a class="btn" href="https://widget.zenbooker.com/book/1686280088022x735379388375598000" target="_blank" rel="noopener">Open booking form</a>
+        <span class="small">Or call / text <b>(971) 800-1075</b></span>
+      </div>
+      <!-- ======== END EMBED ======== -->
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  var reviews = [
+    ['av1', 'alex a', '7 days ago', 'Its was a great experience, technician Art was super knowledge and give me some good tips how to use applience…'],
+    ['av2', 'David Rudolph', '12 days ago', 'Fantastic quality and service. Very easy to work with, the tech explained exactly what needed to happen and…'],
+    ['av3', 'C. T', '22 days ago', 'Went above and beyond.'],
+    ['av4', 'B. Yang', '25 days ago', 'Great service! Alex is very professional, friendly and helpful!'],
+    ['av5', 'Vince Gboi Galicia', '28 days ago', 'Great service! Alex showed up on time was very professional. Repaired our washer same day. Very reasonable…'],
+    ['av6', 'Scott Hanley', '1 month ago', 'Alex was professional, efficient and knowledgable. He was a pleasure to work with and extremely polite. My…'],
+    ['av7', 'Marie Maulding', '1 month ago', 'Thank you Jake for fixing the dishwasher. He is the best. I will definitely let my friends know who t…'],
+    ['av8', 'Renée Stilson', '1 month ago', 'We had another great experience with Home-Serv! Our refrigerator/freezer stopped cooling one evening, Eric…'],
+    ['av9', 'Scott Guthrie', '2 months ago', 'Wonderful experience. Quick, knowledgeable, polite. Would highly recommend.'],
+    ['av10', 'Katie S', '2 months ago', 'We had a fantastic experience with Home-Serv. I needed the hood above my stove-top fixed and I contacted at…'],
+    ['av11', 'Drey Evan', '2 months ago', 'Artem is very helpful and was excellent! Repaired our fridge in no time at all. Seven stars service!!'],
+    ['av12', 'Steven Thoma', '3 months ago', 'Responsive, quick service, provided great explanations of the issues and fixed it the washing machine quickly']
+  ];
+  var gUrl = 'https://www.google.com/search?q=Home-Serv+Appliance+Repair+Milwaukie+reviews';
+  var star = '<svg><use href="#star"/></svg>';
+  var grid = document.getElementById('rv-grid');
+  grid.innerHTML = reviews.map(function (r, i) {
+    var cut = /…$/.test(r[3]);
+    return '<article class="rv' + (i >= 8 ? ' extra' : '') + '">' +
+      '<div class="rv-who"><img src="img/' + r[0] + '.png" alt=""><div><b>' + r[1] + ' <svg aria-label="Verified"><use href="#ok"/></svg></b><span>' + r[2] + '</span></div></div>' +
+      '<span class="stars" aria-label="5 stars">' + star + star + star + star + star + '</span>' +
+      '<p>' + r[3] + '</p>' +
+      '<div class="rv-foot"><span><svg aria-hidden="true"><use href="#g"/></svg>Posted on Google</span>' + (cut ? '<a href="' + gUrl + '" target="_blank" rel="noopener">Read more</a>' : '') + '</div>' +
+      '</article>';
+  }).join('');
+  var lm = document.getElementById('load-more');
+  lm.addEventListener('click', function () {
+    var on = grid.classList.toggle('all');
+    lm.textContent = on ? 'Show fewer reviews' : 'Load more reviews';
+  });
+
+  // Every "Schedule / Book / More details" button opens the booking popup, like Tilda's #popup:embedcode
+  var modal = document.getElementById('modal');
+  var lastFocus = null;
+  function openModal() {
+    lastFocus = document.activeElement;
+    modal.hidden = false;
+    document.body.style.overflow = 'hidden';
+    document.getElementById('m-close').focus();
+    setTimeout(function () {
+      var w = document.querySelector('.zenbooker-inline-widget');
+      var loaded = w && w.children.length > 0;
+      document.querySelector('.zen-wrapper').hidden = !loaded;
+      document.getElementById('zen-fallback').hidden = !!loaded;
+    }, 1500);
+  }
+  function closeModal() { modal.hidden = true; document.body.style.overflow = ''; if (lastFocus) lastFocus.focus(); }
+  document.querySelectorAll('[data-book]').forEach(function (el) {
+    el.addEventListener('click', function (e) { e.preventDefault(); openModal(); });
+  });
+  document.getElementById('m-close').addEventListener('click', closeModal);
+  modal.addEventListener('click', function (e) { if (e.target === modal) closeModal(); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !modal.hidden) closeModal(); });
+  if (location.hash === '#popup:embedcode') openModal();
+
+})();
+</script>
+
+</body>
+</html>

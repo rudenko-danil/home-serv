@@ -18,7 +18,7 @@ Deploy: Netlify, publish directory is the repo root (see `netlify.toml`).
 Generated files are committed, so Netlify needs no build step.
 
 ### Tracking setup
-In `src/data.json` → `site.tracking` set `gtagId` (AW-…), `bookingConversionLabel` and `phoneConversionLabel`, then run `node build.mjs` and push.
+In `src/data.json` → `site.tracking` set `gtagId` (AW-…) and `bookingConversionLabel`, then run `node build.mjs` and push.
 
 ### Booking
 `site.bookingMode`: `"popup"` opens the Zenbooker inline widget in a popup; `"link"` opens the Zenbooker booking page directly. Every booking button links to the booking page either way.

@@ -27,7 +27,7 @@ const hasBrandPage = (slug, appKey) => brands[slug] && brands[slug].pages.includ
 /* ---------- shared head block (also injected into the homepage) ---------- */
 function trackingBlock() {
   const t = site.tracking;
-  const cfg = { gtagId: t.gtagId, phoneLabel: t.phoneConversionLabel, bookingMode: site.bookingMode };
+  const cfg = { bookingMode: site.bookingMode };
   const parts = [];
   if (t.gtagId) {
     parts.push(`<script async src="https://www.googletagmanager.com/gtag/js?id=${esc(t.gtagId)}"></script>`);
@@ -35,7 +35,7 @@ function trackingBlock() {
   } else {
     parts.push('<!-- Google tag: set site.tracking.gtagId in src/data.json and run node build.mjs -->');
   }
-  parts.push(`<script>window.HS=${JSON.stringify(cfg)};document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('a[href^="tel:"]');if(a&&window.HS.gtagId&&window.HS.phoneLabel&&typeof gtag==='function'){gtag('event','conversion',{send_to:window.HS.gtagId+'/'+window.HS.phoneLabel});}});</script>`);
+  parts.push(`<script>window.HS=${JSON.stringify(cfg)};</script>`);
   parts.push('<script>!function(){if(window.Zenbooker&&"function"==typeof window.Zenbooker);else{var e=document.createElement("script");e.src="https://cdn.zenbooker.com/widget/latest/zenbooker.js",document.head.appendChild(e)}}();</script>');
   parts.push('<link rel="stylesheet" href="https://cdn.zenbooker.com/widget/latest/zenbooker.css" media="print" onload="this.media=\'all\'">');
   return parts.join('\n');

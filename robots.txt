@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://home-serv-appliance-repair.netlify.app/sitemap.xml

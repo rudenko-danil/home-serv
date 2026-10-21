@@ -209,3 +209,55 @@ body { padding-bottom: calc(70px + env(safe-area-inset-bottom, 0px)); }
 .zenbooker-inline-widget { height: min(680px, calc(100vh - 110px)) !important; }
 .zen-fallback { min-height: 340px; display: grid; place-content: center; justify-items: center; gap: 12px; text-align: center; padding: 36px 24px; color: var(--muted); }
 .zen-fallback > b { font-family: var(--f-display); font-stretch: 125%; font-weight: 900; color: var(--navy); font-size: 20px; text-transform: uppercase; }
+
+/* Parts line under problems */
+.parts { margin-top: 18px; font-size: 14.5px; color: var(--muted); }
+.parts b { color: var(--navy); }
+
+/* Chips: brands, extra items */
+.chips { margin-top: 18px; display: flex; flex-wrap: wrap; gap: 10px; }
+.chips li { display: flex; }
+.chips a, .chips span { display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; padding: 9px 16px; font-weight: 600; font-size: 14.5px; color: var(--navy); background: #fff; border: 1px solid var(--line); }
+.chips a { border-color: #B7D6F2; }
+.chips a::after { content: "→"; color: var(--blue); }
+.chips a:hover { border-color: var(--blue); background: #EEF6FF; }
+
+/* Extra block (ice maker, vent cross-link) */
+.extra { margin-top: 24px; background: #fff; border: 1px solid var(--line); border-left: 4px solid var(--blue); border-radius: var(--r); padding: 22px 20px; }
+.extra h2 { font-size: clamp(20px, 5vw, 26px); line-height: 1.2; text-transform: uppercase; }
+.extra p { margin-top: 8px; color: var(--muted); }
+.extra ul { margin-top: 14px; display: grid; gap: 8px; }
+.extra li { display: grid; grid-template-columns: 20px minmax(0, 1fr); gap: 10px; font-weight: 600; color: var(--navy); font-size: 15px; }
+.extra li svg { width: 18px; height: 18px; margin-top: 2px; color: var(--ok); }
+.extra .more { margin-top: 16px; display: inline-flex; align-items: center; gap: 8px; font-weight: 700; color: var(--blue-d); }
+.extra .more svg { width: 18px; height: 18px; }
+@media (min-width: 700px) { .extra ul { grid-template-columns: repeat(2, minmax(0, 1fr)); } .extra { padding: 26px 28px; } }
+
+/* Vent: why cards, included list */
+.why { margin-top: 22px; display: grid; gap: 12px; }
+.why-c { background: #fff; border: 1px solid var(--line); border-radius: var(--r); padding: 20px; }
+.why-c b { display: block; font-family: var(--f-display); font-stretch: 125%; font-weight: 900; color: var(--navy); font-size: 16px; text-transform: uppercase; }
+.why-c p { margin-top: 6px; color: var(--muted); font-size: 15px; }
+@media (min-width: 800px) { .why { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; } }
+.prob.warn svg { color: #E06A1B; }
+.price-note { margin-top: 18px; background: var(--navy); color: #fff; border-radius: var(--r); padding: 20px 22px; display: grid; gap: 6px; }
+.price-note b { font-family: var(--f-display); font-stretch: 125%; font-weight: 900; font-size: 18px; text-transform: uppercase; color: var(--blue); }
+.price-note p { color: rgba(255,255,255,.8); }
+
+/* Simple pages: thank-you, 404, privacy */
+.simple { padding-block: 56px 8px; }
+.simple-box { max-width: 640px; margin: 0 auto; background: #fff; border: 1px solid var(--line); border-radius: 24px; padding: 36px 24px; text-align: center; }
+.simple-box .ok-ic { width: 72px; height: 72px; margin: 0 auto; color: var(--ok); }
+.simple-box h1 { margin-top: 18px; font-size: clamp(26px, 6vw, 38px); text-transform: uppercase; line-height: 1.1; }
+.simple-box p { margin-top: 12px; color: var(--muted); font-size: 17px; }
+.simple-box p b { color: var(--navy); white-space: nowrap; }
+.simple-ctas { margin-top: 24px; display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
+.simple-links { margin-top: 26px; padding-top: 20px; border-top: 1px solid var(--line); display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 18px; font-weight: 600; font-size: 14.5px; }
+.simple-links a { color: var(--blue-d); }
+.doc { max-width: 760px; margin: 0 auto; padding-block: 40px 0; }
+.doc h1 { font-size: clamp(28px, 6vw, 40px); text-transform: uppercase; line-height: 1.1; }
+.doc .upd { margin-top: 10px; color: var(--muted); font-size: 14px; }
+.doc h2 { margin-top: 34px; font-size: 19px; text-transform: uppercase; }
+.doc p, .doc li { margin-top: 10px; font-size: 16px; }
+.doc ul { list-style: disc; padding-left: 22px; }
+.doc a { color: var(--blue-d); text-decoration: underline; text-underline-offset: 3px; }

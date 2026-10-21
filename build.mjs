@@ -1,177 +1,489 @@
 #!/usr/bin/env node
-// Generates landing pages from src/data.json + src/templates/landing.html.
-// Usage: node build.mjs            -> builds the pages listed in data.build
-//        node build.mjs --all      -> builds every brand × appliance page that has appliance data
-// The homepage (/index.html) is never touched.
-import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+// Home-Serv site generator. Run: node build.mjs
+// Builds every page except the homepage body from src/data.json + src/templates/page.html,
+// refreshes the tracking/meta block in the homepage <head>, writes sitemap.xml and robots.txt,
+// then checks all pages (banned wording, broken internal links, leftover placeholders).
+import { readFileSync, writeFileSync, mkdirSync, existsSync, rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = dirname(fileURLToPath(import.meta.url));
 const data = JSON.parse(readFileSync(join(ROOT, 'src/data.json'), 'utf8'));
-const template = readFileSync(join(ROOT, 'src/templates/landing.html'), 'utf8');
-const { site, serviceArea, brands, appliances, reviews } = data;
-
-// Words Google Ads flags next to brand names (ТЗ, раздел 2).
-const BANNED = [/authori[sz]ed/i, /\bofficial\b/i, /factory[- ]certified/i, /service center/i, /\bcertified\b/i];
+const TEMPLATE = readFileSync(join(ROOT, 'src/templates/page.html'), 'utf8');
+const { site, serviceArea, brands, appliances, reviews, ventCleaning: vent } = data;
+const YEAR = new Date().getFullYear();
+const TODAY = new Date().toISOString().slice(0, 10);
 
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 const STARS = '<svg><use href="#star"/></svg>'.repeat(5);
+const BIZ_ID = site.baseUrl + '/#business';
+const joinList = (a) => (a.length < 2 ? a.join('') : a.slice(0, -1).join(', ') + ' and ' + a[a.length - 1]);
+const appName = (a) => a.displayName || a.name;          // "Stove & Cooktop" for the cooktop page
+const appLower = (a) => a.displayLower || a.lower;
+const brandLong = (b) => b.longName || b.name;
+const brandPath = (slug, appKey) => `/${slug}/${appKey}-repair/`;
+const hasBrandPage = (slug, appKey) => brands[slug] && brands[slug].pages.includes(appKey);
 
-function listBrands(appKey, exceptSlug) {
-  const names = Object.entries(brands)
-    .filter(([slug, b]) => slug !== exceptSlug && b.appliances.includes(appKey))
-    .map(([, b]) => b.name);
-  return names.slice(0, -1).join(', ') + ' and ' + names[names.length - 1];
+/* ---------- shared head block (also injected into the homepage) ---------- */
+function trackingBlock() {
+  const t = site.tracking;
+  const cfg = { gtagId: t.gtagId, phoneLabel: t.phoneConversionLabel, bookingMode: site.bookingMode };
+  const parts = [];
+  if (t.gtagId) {
+    parts.push(`<script async src="https://www.googletagmanager.com/gtag/js?id=${esc(t.gtagId)}"></script>`);
+    parts.push(`<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${esc(t.gtagId)}');</script>`);
+  } else {
+    parts.push('<!-- Google tag: set site.tracking.gtagId in src/data.json and run node build.mjs -->');
+  }
+  parts.push(`<script>window.HS=${JSON.stringify(cfg)};document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('a[href^="tel:"]');if(a&&window.HS.gtagId&&window.HS.phoneLabel&&typeof gtag==='function'){gtag('event','conversion',{send_to:window.HS.gtagId+'/'+window.HS.phoneLabel});}});</script>`);
+  parts.push('<script>!function(){if(window.Zenbooker&&"function"==typeof window.Zenbooker);else{var e=document.createElement("script");e.src="https://cdn.zenbooker.com/widget/latest/zenbooker.js",document.head.appendChild(e)}}();</script>');
+  parts.push('<link rel="stylesheet" href="https://cdn.zenbooker.com/widget/latest/zenbooker.css" media="print" onload="this.media=\'all\'">');
+  return parts.join('\n');
 }
 
-function gtagBlock() {
-  const id = site.tracking.gtagId;
-  if (!id) return '<!-- Google tag: set site.tracking.gtagId in src/data.json and rebuild -->';
-  return `<script async src="https://www.googletagmanager.com/gtag/js?id=${esc(id)}"></script>
-<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${esc(id)}');</script>`;
-}
-
-function buildPage({ brand: brandSlug, appliance: appKey }) {
-  const app = appliances[appKey];
-  if (!app) throw new Error(`No appliance data for "${appKey}"`);
-  const brand = brandSlug ? brands[brandSlug] : null;
-  if (brandSlug && !brand) throw new Error(`Unknown brand "${brandSlug}"`);
-  if (brand && !brand.appliances.includes(appKey)) throw new Error(`${brand.name} has no ${appKey} page`);
-
-  const B = brand ? brand.name + ' ' : '';
-  const path = brand ? `/${brandSlug}/${appKey}-repair/` : `/${appKey}-repair/`;
-  const url = site.baseUrl + path;
-  const title = `${B}${app.name} Repair Portland & Milwaukie, OR | Home-Serv`;
-  const h1Plain = `${B}${app.name} Repair in Portland & Milwaukie, OR`;
-  const description = brand
-    ? `${brand.name} ${app.lower} repair in Portland & Milwaukie, OR. We fix all ${brand.name} ${app.lower} models. $99 diagnostic, 60-day warranty on parts & labor. Book online 24/7.`
-    : `${app.name} repair in Portland & Milwaukie, OR, all major brands. $99 diagnostic, 60-day warranty on parts & labor. Book online 24/7.`;
-  const subtitle = brand
-    ? `Fast, local repair for all ${brand.name} ${app.lower} models. Licensed, bonded & insured.`
-    : `Fast, local repair for all major ${app.lower} brands. Licensed, bonded & insured.`;
-  const disclaimer = brand
-    ? `${site.name} is an independent repair company and is not affiliated with, authorized or endorsed by ${brand.name}. All brand names and trademarks are the property of their respective owners.`
-    : `${site.name} is an independent repair company and is not affiliated with, authorized or endorsed by any appliance manufacturer. All brand names and trademarks are the property of their respective owners.`;
-
-  const problems = app.problems.map((p) =>
-    `<li class="prob"><svg aria-hidden="true"><use href="#wrench"/></svg><div><b>${esc(p.t)}</b><span>${esc(p.d)}</span></div></li>`).join('');
-  const models = app.models.map((m) => `<li>${esc(brand ? brand.name + ' ' : '')}${esc(m.charAt(0).toLowerCase() + m.slice(1))}</li>`).join('');
-  const revs = app.reviews.map((id) => {
-    const r = reviews[id];
-    const cut = r.text.endsWith('…');
-    return `<article class="rv"><div class="rv-who"><img src="/assets/img/${id}.webp" width="60" height="60" alt="" loading="lazy"><div><b>${esc(r.name)}</b><span>${esc(r.when)}</span></div></div><span class="stars" aria-label="5 stars">${STARS}</span><p>${esc(r.text)}</p><div class="rv-foot"><span><svg aria-hidden="true"><use href="#g"/></svg>Posted on Google</span>${cut ? `<a href="${esc(site.googleReviewsUrl)}" target="_blank" rel="noopener">Read more</a>` : ''}</div></article>`;
-  }).join('');
-
-  const faqs = [
-    [`How much does ${B}${app.lower} diagnostics cost?`,
-     `Diagnostics is <b>$99 per appliance</b>. The fee is waived if you hire us for the repair.`],
-    [`What warranty do you give on ${app.lower} repairs?`,
-     `Every repair comes with a <b>60-day warranty on parts and labor</b>.`],
-    [`How fast can you come out?`,
-     `You can book online 24/7 and pick the earliest available time slot. To check today's availability, call or text <b>${esc(site.phone)}</b> Mon–Fri 9 AM – 5 PM.`],
-    [brand ? `Do you repair other ${app.lower} brands besides ${brand.name}?` : `Which ${app.lower} brands do you repair?`,
-     `Yes. We repair ${esc(listBrands(appKey, brandSlug))} ${app.plural}${brand ? '' : ''}, plus most other major brands.`],
-  ];
-  const faqHtml = faqs.map(([q, a], i) => `<details${i === 0 ? ' open' : ''}><summary>${esc(q)}</summary><div class="ans">${a}</div></details>`).join('');
-
-  const crumbs = brand
-    ? `<li><a href="/">Home</a></li><li>${esc(brand.name)}</li><li aria-current="page">${esc(brand.name)} ${esc(app.name)} Repair</li>`
-    : `<li><a href="/">Home</a></li><li aria-current="page">${esc(app.name)} Repair</li>`;
-
-  const business = {
+function businessSchema() {
+  const b = {
     '@type': 'HomeAndConstructionBusiness',
-    '@id': site.baseUrl + '/#business',
+    '@id': BIZ_ID,
     name: site.name,
     url: site.baseUrl + '/',
     telephone: site.phoneE164,
     email: site.email,
     image: site.baseUrl + '/assets/img/og-image.jpg',
+    logo: site.baseUrl + '/assets/img/logo.webp',
     foundingDate: String(site.since),
+    priceRange: '$$',
     areaServed: serviceArea.cities.map((c) => ({ '@type': 'City', name: c.replace(/ \(.*\)$/, '') + ', OR' }))
-      .concat(serviceArea.zips.map((z) => ({ '@type': 'PostalCodeSpecification', postalCode: z }))),
+      .concat(serviceArea.zips.map((z) => ({ '@type': 'PostalCodeSpecification', postalCode: z, addressCountry: 'US' }))),
     openingHoursSpecification: [{ '@type': 'OpeningHoursSpecification', dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'], opens: '09:00', closes: '17:00' }],
   };
-  if (site.rating.verified) business.aggregateRating = { '@type': 'AggregateRating', ratingValue: site.rating.value, reviewCount: String(site.rating.count) };
-  const schema = {
-    '@context': 'https://schema.org',
-    '@graph': [
-      business,
-      { '@type': 'Service', name: `${B}${app.name} Repair`, serviceType: `${app.name} repair`, url, provider: { '@id': site.baseUrl + '/#business' },
-        areaServed: ['Portland, OR', 'Milwaukie, OR'], offers: { '@type': 'Offer', name: 'Diagnostic visit', price: '99', priceCurrency: 'USD', description: 'Waived if you hire us for the repair' } },
-      { '@type': 'FAQPage', mainEntity: faqs.map(([q, a]) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: a.replace(/<[^>]+>/g, '') } })) },
-      { '@type': 'BreadcrumbList', itemListElement: [
-        { '@type': 'ListItem', position: 1, name: 'Home', item: site.baseUrl + '/' },
-        { '@type': 'ListItem', position: 2, name: `${B}${app.name} Repair`, item: url } ] },
-    ],
-  };
+  if (site.rating.verified) b.aggregateRating = { '@type': 'AggregateRating', ratingValue: site.rating.value, reviewCount: String(site.rating.count) };
+  return b;
+}
+const schemaTag = (graph) => `<script type="application/ld+json">${JSON.stringify({ '@context': 'https://schema.org', '@graph': graph }).replace(/</g, '\\u003c')}</script>`;
 
-  const vars = {
-    TITLE: esc(title),
-    DESCRIPTION: esc(description),
-    CANONICAL: esc(url),
-    BASE_URL: esc(site.baseUrl),
-    SITE_NAME: esc(site.name),
-    GTAG: gtagBlock(),
-    SCHEMA: JSON.stringify(schema).replace(/</g, '\\u003c'),
-    PHONE: esc(site.phone),
-    PHONE_E164: esc(site.phoneE164),
-    EMAIL: esc(site.email),
-    LICENSE: esc(site.license),
-    SINCE: String(site.since),
-    HOURS: esc(site.hours),
-    ZEN_URL: esc(site.zenbookerUrl),
-    ZEN_EMBED_URL: esc(site.zenbookerEmbedUrl),
-    GOOGLE_REVIEWS_URL: esc(site.googleReviewsUrl),
-    RATING_VALUE: esc(site.rating.value),
-    RATING_COUNT: String(site.rating.count),
-    STARS,
-    CRUMBS: crumbs,
-    EYEBROW: brand ? `${esc(brand.name)} ${esc(app.lower)} repair` : `${esc(app.lower)} repair`,
-    H1: brand ? `<span class="b">${esc(brand.name)} ${esc(app.name)} Repair</span> in Portland &amp; Milwaukie, OR` : `<span class="b">${esc(app.name)} Repair</span> in Portland &amp; Milwaukie, OR`,
-    SUBTITLE: esc(subtitle),
-    APPLIANCE_IMG: esc(app.image),
-    APPLIANCE_IMG_W: String(app.imageW),
-    APPLIANCE_IMG_H: String(app.imageH),
-    APPLIANCE_IMG_ALT: esc(`${app.name} repair`),
-    APPLIANCE_LOWER: esc(app.lower),
-    PROBLEMS_TITLE: esc(`Common ${B}${app.lower} problems we fix`),
-    PROBLEMS_LEAD: esc(brand ? `Our technicians repair these ${brand.name} ${app.lower} issues every week.` : `Our technicians repair these ${app.lower} issues every week.`),
-    PROBLEMS: problems,
-    MODELS_TITLE: esc(brand ? `${brand.name} ${app.plural} we repair` : `${app.name} types we repair`),
-    MODELS_LEAD: esc(brand ? `We repair all ${brand.name} ${app.lower} models, including:` : `We repair all common ${app.lower} types:`),
-    MODELS: models,
-    REVIEWS: revs,
-    AREA_LEAD: esc(`We come to your home for ${B}${app.lower} repair in Milwaukie, Portland and nearby cities.`),
-    CITIES: serviceArea.cities.map((c) => `<li>${esc(c)}</li>`).join(''),
-    ZIPS: serviceArea.zips.map((z) => `<li>${z}</li>`).join(''),
-    FAQ: faqHtml,
-    FINAL_TITLE: esc(`Need ${brand ? 'your ' + brand.name + ' ' + app.lower : 'your ' + app.lower} fixed?`),
-    DISCLAIMER: esc(disclaimer),
-    YEAR: String(new Date().getFullYear()),
-    CLIENT_CONFIG: JSON.stringify({ gtagId: site.tracking.gtagId, phoneLabel: site.tracking.phoneConversionLabel }),
-  };
+/* ---------- section builders ---------- */
+const footerServices = () =>
+  Object.entries(appliances).map(([k, a]) => `<li><a href="/${k}-repair/">${esc(appName(a))} Repair</a></li>`).join('') +
+  `<li><a href="${vent.path}">${esc(vent.name)}</a></li>`;
 
-  let html = template.replace(/\{\{([A-Z0-9_]+)\}\}/g, (m, k) => {
-    if (!(k in vars)) throw new Error(`Template variable ${k} has no value`);
-    return vars[k];
-  });
-
-  // Moderation check: page text (minus the required disclaimer) must not contain banned words.
-  if (brand) {
-    const text = html.replace(/<p class="disclaimer">[\s\S]*?<\/p>/, '').replace(/<script[\s\S]*?<\/script>/g, '').replace(/<[^>]+>/g, ' ');
-    for (const re of BANNED) if (re.test(text)) throw new Error(`${path}: banned wording ${re} on a brand page`);
-  }
-  if (html.includes('#popup:embedcode')) throw new Error(`${path}: leftover #popup:embedcode`);
-
-  const out = join(ROOT, path, 'index.html');
-  mkdirSync(dirname(out), { recursive: true });
-  writeFileSync(out, html);
-  return path;
+function hero({ crumbs, eyebrow, h1, sub, img }) {
+  return `<section class="hero">
+    <div class="wrap">
+      <nav class="crumbs" aria-label="Breadcrumb"><ol>${crumbs.map((c, i) => (c.href && i < crumbs.length - 1 ? `<li><a href="${c.href}">${esc(c.name)}</a></li>` : `<li${i === crumbs.length - 1 ? ' aria-current="page"' : ''}>${esc(c.name)}</li>`)).join('')}</ol></nav>
+      <div class="hero-in">
+        <div>
+          <p class="eyebrow">${esc(eyebrow)}</p>
+          <h1>${h1}</h1>
+          <p class="hero-sub">${esc(sub)}</p>
+          <div class="hero-ctas">
+            <a class="btn" href="${esc(site.zenbookerUrl)}" data-book><svg aria-hidden="true"><use href="#cal"/></svg>Book Online</a>
+            <a class="btn line" href="tel:${site.phoneE164}"><svg aria-hidden="true"><use href="#phone"/></svg>Call ${esc(site.phone)}</a>
+          </div>
+          <div class="trust">
+            <div class="trust-row"><svg class="ic" aria-hidden="true"><use href="#g"/></svg><b>${esc(site.rating.value)}</b><span class="stars" aria-label="${esc(site.rating.value)} out of 5">${STARS}</span><a href="${esc(site.googleReviewsUrl)}" target="_blank" rel="noopener">${site.rating.count} Google reviews</a></div>
+            <div class="trust-row"><svg class="ic chk" aria-hidden="true"><use href="#chk"/></svg>Licensed, Bonded &amp; Insured · ${esc(site.license)}</div>
+            <p class="hours"><svg aria-hidden="true"><use href="#clock"/></svg>${esc(site.hours)}</p>
+          </div>
+        </div>
+        <div class="hero-art"><img src="${img.src}" width="${img.w}" height="${img.h}" alt="${esc(img.alt)}" fetchpriority="high"></div>
+      </div>
+    </div>
+  </section>`;
 }
 
-const list = process.argv.includes('--all')
-  ? Object.entries(brands).flatMap(([slug, b]) => b.appliances.filter((a) => appliances[a]).map((a) => ({ brand: slug, appliance: a })))
-  : data.build;
-const built = list.map(buildPage);
-console.log(`Built ${built.length} page(s):\n` + built.map((p) => '  ' + p).join('\n'));
+function benefits(list) {
+  return `<section class="sec" aria-label="Why choose us"><div class="wrap"><div class="benefits">${list.map(([icon, t, d]) =>
+    `<div class="ben"><img src="/assets/img/${icon}.webp" width="140" height="140" alt="" loading="lazy"><h3>${esc(t)}</h3><p>${esc(d)}</p></div>`).join('')}</div></div></section>`;
+}
+const APPLIANCE_BENEFITS = [
+  ['f-wrench', '$99 Diagnostic', 'Waived if you hire us for the repair'],
+  ['f-shield', '60-Day Warranty', 'On both parts and labor'],
+  ['f-coins', 'Price Agreed First', 'You approve the price before any work starts'],
+  ['f-pin', `Local Since ${site.since}`, 'Serving Milwaukie and Portland, OR'],
+];
+
+const probItems = (list, cls = '') => list.map((p) =>
+  `<li class="prob${cls}"><svg aria-hidden="true"><use href="#${cls ? 'alert' : 'wrench'}"/></svg><div><b>${esc(p.t)}</b><span>${esc(p.d)}</span></div></li>`).join('');
+
+function problemsSection({ title, lead, items, parts, ctaText = 'Book a Repair Online' }) {
+  return `<section class="sec" id="problems"><div class="wrap">
+      <h2 class="sec-title">${esc(title)}</h2>
+      <p class="sec-lead">${esc(lead)}</p>
+      <ul class="problems">${probItems(items)}</ul>
+      ${parts ? `<p class="parts"><b>Parts we replace:</b> ${esc(joinList(parts))}.</p>` : ''}
+      <div class="prob-cta"><a class="btn" href="${esc(site.zenbookerUrl)}" data-book>${esc(ctaText)}</a><p>Don't see your issue? We fix it too.</p></div>
+    </div></section>`;
+}
+
+function extraSection(x) {
+  if (!x) return '';
+  return `<section class="sec"><div class="wrap"><div class="extra">
+      <h2>${esc(x.title)}</h2><p>${esc(x.lead)}</p>
+      <ul>${x.items.map((i) => `<li><svg aria-hidden="true"><use href="#chk"/></svg><span>${esc(i)}</span></li>`).join('')}</ul>
+      ${x.link ? `<a class="more" href="${x.link.href}">${esc(x.link.text)}<svg aria-hidden="true"><use href="#arrow"/></svg></a>` : ''}
+    </div></div></section>`;
+}
+
+const chipsSection = ({ id, title, lead, items }) => `<section class="sec" id="${id}"><div class="wrap">
+      <h2 class="sec-title">${esc(title)}</h2>${lead ? `<p class="sec-lead">${esc(lead)}</p>` : ''}
+      <ul class="chips">${items.map((i) => `<li>${i.href ? `<a href="${i.href}">${esc(i.text)}</a>` : `<span>${esc(i.text)}</span>`}</li>`).join('')}</ul>
+    </div></section>`;
+
+function howSection(thing) {
+  return `<section class="sec" id="how"><div class="wrap">
+      <h2 class="sec-title">How it works</h2>
+      <div class="steps">
+        <div class="step"><span class="step-n" aria-hidden="true">1</span><div class="step-dot">1</div><h3>Book an appointment</h3><p>Book online 24/7 or call / text <b>${esc(site.phone)}</b> Mon–Fri 9 AM – 5 PM. Tell us the appliance, brand and what's going on.</p></div>
+        <div class="step"><span class="step-n" aria-hidden="true">2</span><div class="step-dot">2</div><h3>Diagnostics</h3><p>The technician checks the ${esc(thing)}, explains the problem and agrees the price with you before any work starts. If a part is needed, we order it.</p></div>
+        <div class="step"><span class="step-n" aria-hidden="true">3</span><div class="step-dot">3</div><h3>Repair</h3><p>We complete the work as quickly as possible. Payment of the agreed amount is due when the job is done.</p></div>
+      </div>
+    </div></section>`;
+}
+
+function reviewsSection(ids) {
+  const cards = ids.map((id) => {
+    const r = reviews[id];
+    const cut = r.text.endsWith('…');
+    return `<article class="rv"><div class="rv-who"><img src="/assets/img/${id}.webp" width="60" height="60" alt="" loading="lazy"><div><b>${esc(r.name)}</b><span>${esc(r.when)}</span></div></div><span class="stars" aria-label="5 stars">${STARS}</span><p>${esc(r.text)}</p><div class="rv-foot"><span><svg aria-hidden="true"><use href="#g"/></svg>Posted on Google</span>${cut ? `<a href="${esc(site.googleReviewsUrl)}" target="_blank" rel="noopener">Read more</a>` : ''}</div></article>`;
+  }).join('');
+  return `<section class="sec" id="reviews"><div class="wrap">
+      <h2 class="sec-title">What our customers say</h2>
+      <div class="rv-head"><svg class="gi" aria-hidden="true"><use href="#g"/></svg><span class="num">${esc(site.rating.value)}</span><div><span class="stars" aria-label="${esc(site.rating.value)} out of 5">${STARS}</span><div class="meta">${site.rating.count} reviews on Google · <a href="${esc(site.googleReviewsUrl)}" target="_blank" rel="noopener">Read all</a></div></div></div>
+      <div class="reviews">${cards}</div>
+    </div></section>`;
+}
+
+function areaSection(lead) {
+  return `<section class="sec" id="service-area"><div class="wrap">
+      <h2 class="sec-title">Service area</h2>
+      <p class="sec-lead">${esc(lead)}</p>
+      <div class="area">
+        <div class="area-box"><h3>Cities</h3><ul class="cities">${serviceArea.cities.map((c) => `<li>${esc(c)}</li>`).join('')}</ul></div>
+        <div class="area-box"><h3>ZIP codes</h3><ul class="zips">${serviceArea.zips.map((z) => `<li>${z}</li>`).join('')}</ul></div>
+      </div>
+    </div></section>`;
+}
+
+const faqSection = (faqs) => `<section class="sec" id="faq"><div class="wrap">
+      <h2 class="sec-title">FAQ</h2>
+      <div class="faq">${faqs.map(([q, a], i) => `<details${i === 0 ? ' open' : ''}><summary>${esc(q)}</summary><div class="ans">${a}</div></details>`).join('')}</div>
+    </div></section>`;
+const faqSchema = (faqs) => ({ '@type': 'FAQPage', mainEntity: faqs.map(([q, a]) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: a.replace(/<[^>]+>/g, '') } })) });
+
+const finalCta = (title) => `<section class="final"><div class="wrap"><div class="final-box">
+      <div><h2>${esc(title)}</h2><p style="margin-top:10px">${esc(site.hours)}</p></div>
+      <div class="final-ctas">
+        <a class="btn" href="${esc(site.zenbookerUrl)}" data-book><svg aria-hidden="true"><use href="#cal"/></svg>Book Online</a>
+        <a class="btn line" href="tel:${site.phoneE164}"><svg aria-hidden="true"><use href="#phone"/></svg>Call ${esc(site.phone)}</a>
+      </div>
+    </div></div></section>`;
+
+const FAQ_FAST = `Book online 24/7 to see the earliest available appointment, or call/text us during business hours: <b>${esc(site.phone)}</b>, Mon–Fri 9 AM – 5 PM.`;
+const GENERIC_DISCLAIMER = `${site.name} is an independent repair company and is not affiliated with, authorized or endorsed by any appliance manufacturer. All brand names and trademarks are the property of their respective owners.`;
+const breadcrumbSchema = (crumbs) => ({ '@type': 'BreadcrumbList', itemListElement: crumbs.map((c, i) => ({ '@type': 'ListItem', position: i + 1, name: c.name, item: site.baseUrl + c.href })) });
+
+/* ---------- page renderer ---------- */
+const pages = []; // { path, file, sitemap, brandName? }
+
+function render({ path, file, title, description, robots = 'index, follow', canonical = true, graph, main, disclaimer = GENERIC_DISCLAIMER, pageScript = '', sitemap = true, brandName = null }) {
+  const vars = {
+    TITLE: esc(title), DESCRIPTION: esc(description), ROBOTS: robots,
+    CANONICAL_TAG: canonical ? `<link rel="canonical" href="${esc(site.baseUrl + path)}">` : '',
+    OG_URL: esc(site.baseUrl + path), BASE_URL: esc(site.baseUrl), SITE_NAME: esc(site.name),
+    TRACKING: trackingBlock(), SCHEMA_TAG: graph ? schemaTag(graph) : '',
+    PHONE: esc(site.phone), PHONE_E164: site.phoneE164, EMAIL: esc(site.email), LICENSE: esc(site.license),
+    SINCE: String(site.since), HOURS: esc(site.hours), ZEN_URL: esc(site.zenbookerUrl), ZEN_EMBED_URL: esc(site.zenbookerEmbedUrl),
+    MAIN: main, FOOTER_SERVICES: footerServices(), DISCLAIMER: esc(disclaimer), YEAR: String(YEAR), PAGE_SCRIPT: pageScript,
+  };
+  const html = TEMPLATE.replace(/\{\{([A-Z0-9_]+)\}\}/g, (m, k) => {
+    if (!(k in vars)) throw new Error(`${path}: template variable ${k} has no value`);
+    return vars[k];
+  });
+  const out = join(ROOT, file || join(path, 'index.html'));
+  mkdirSync(dirname(out), { recursive: true });
+  writeFileSync(out, html);
+  pages.push({ path, file: out, sitemap, brandName, html });
+}
+
+/* ---------- brand × appliance and appliance pages ---------- */
+function appliancePage(appKey, brandSlug = null) {
+  const app = appliances[appKey];
+  const brand = brandSlug ? brands[brandSlug] : null;
+  const B = brand ? brand.name + ' ' : '';
+  const name = appName(app), lower = appLower(app);
+  const path = brand ? brandPath(brandSlug, appKey) : `/${appKey}-repair/`;
+  const generalCrumb = { name: `${name} Repair`, href: `/${appKey}-repair/` };
+  const crumbs = brand
+    ? [{ name: 'Home', href: '/' }, generalCrumb, { name: `${brand.name} ${name} Repair`, href: path }]
+    : [{ name: 'Home', href: '/' }, generalCrumb];
+  const otherBrands = app.brandsRepaired.filter((s) => s !== brandSlug).map((s) => brandLong(brands[s]));
+
+  const faqs = [
+    [`How much does ${B}${lower} diagnostics cost?`, `Diagnostics is <b>$99 per appliance</b>. The fee is waived if you hire us for the repair.`],
+    [`What warranty do you give on ${lower} repairs?`, `Every repair comes with a <b>60-day warranty on parts and labor</b>.`],
+    ['How fast can you come out?', FAQ_FAST],
+    brand
+      ? [`Do you repair other ${lower} brands besides ${brand.name}?`, `Yes. We also repair ${esc(joinList(otherBrands))} ${app.plural}, along with other major brands.`]
+      : [`Which ${lower} brands do you repair?`, `We repair ${esc(joinList(otherBrands))} ${app.plural}, along with other major brands.`],
+  ];
+
+  const sections = [
+    hero({
+      crumbs,
+      eyebrow: brand ? `${brand.name} ${lower} repair` : `${lower} repair`,
+      h1: `<span class="b">${esc(B + name)} Repair</span> in Portland &amp; Milwaukie, OR`,
+      sub: brand
+        ? `Fast, local repair for all ${brandLong(brand)} ${app.lower} models. Licensed, bonded & insured.`
+        : appKey === 'cooktop'
+          ? 'Fast, local repair for gas, electric and induction stoves and cooktops. Licensed, bonded & insured.'
+          : `Fast, local repair for all major ${app.lower} brands. Licensed, bonded & insured.`,
+      img: { src: app.image, w: app.imageW, h: app.imageH, alt: `${name} repair` },
+    }),
+    benefits(APPLIANCE_BENEFITS),
+    problemsSection({
+      title: `Common ${B}${lower} problems we fix`,
+      lead: app.intro && !brand ? app.intro : brand ? `Our technicians repair these ${brand.name} ${app.lower} issues every week.` : `Our technicians repair these ${lower} issues every week.`,
+      items: app.problems,
+      parts: app.parts,
+    }),
+    extraSection(app.extra),
+    chipsSection({
+      id: 'models',
+      title: brand ? `${brand.name} ${app.plural} we repair` : `${name} types we repair`,
+      lead: brand ? `We repair all ${brandLong(brand)} ${app.lower} models, including:` : `We repair all common ${lower} types:`,
+      items: app.models.map((m) => ({ text: brand ? `${brand.name} ${m.charAt(0).toLowerCase()}${m.slice(1)}` : m })),
+    }),
+    brand ? '' : chipsSection({
+      id: 'brands',
+      title: 'Brands we repair',
+      lead: `We repair ${app.plural} from all major brands. Pick yours for brand-specific details:`,
+      items: app.brandsRepaired.map((s) => ({ text: brandLong(brands[s]), href: hasBrandPage(s, appKey) ? brandPath(s, appKey) : null })),
+    }),
+    howSection(lower),
+    reviewsSection(app.reviews),
+    areaSection(`We come to your home for ${B}${lower} repair in Milwaukie, Portland and nearby cities.`),
+    faqSection(faqs),
+    finalCta(`Need your ${B}${lower} fixed?`),
+  ];
+
+  const title = `${B}${name} Repair Portland & Milwaukie, OR | Home-Serv`;
+  const description = brand
+    ? `${brand.name} ${app.lower} repair in Portland & Milwaukie, OR. We fix all ${brandLong(brand)} ${app.lower} models. $99 diagnostic, 60-day warranty on parts & labor. Book online 24/7.`
+    : `${name} repair in Portland & Milwaukie, OR: ${app.problems.slice(0, 2).map((p) => p.t.toLowerCase()).join(', ')} and more. $99 diagnostic, 60-day warranty. Book online 24/7.`;
+
+  render({
+    path, title, description, brandName: brand ? brand.name : null,
+    graph: [businessSchema(),
+      { '@type': 'Service', name: `${B}${name} Repair`, serviceType: `${name} repair`, url: site.baseUrl + path, provider: { '@id': BIZ_ID }, areaServed: ['Portland, OR', 'Milwaukie, OR'],
+        offers: { '@type': 'Offer', name: 'Diagnostic visit', price: '99', priceCurrency: 'USD', description: 'Waived if you hire us for the repair' } },
+      faqSchema(faqs), breadcrumbSchema(crumbs)],
+    main: sections.join('\n'),
+    disclaimer: brand
+      ? `${site.name} is an independent repair company and is not affiliated with, authorized or endorsed by ${brand.name}. All brand names and trademarks are the property of their respective owners.`
+      : GENERIC_DISCLAIMER,
+  });
+}
+
+/* ---------- dryer vent cleaning ---------- */
+function ventPage() {
+  const crumbs = [{ name: 'Home', href: '/' }, { name: vent.name, href: vent.path }];
+  const faqs = [
+    ['How often should a dryer vent be cleaned?', 'Most homes need it about once a year. Clean it sooner if you notice the warning signs above or if you dry a lot of laundry.'],
+    ['How much does dryer vent cleaning cost?', 'The price depends on the length and layout of your vent line. We agree on the price upfront, before any work starts.'],
+    ['How fast can you come out?', FAQ_FAST],
+    ['Do you also repair dryers?', 'Yes. If the dryer itself has a problem, we can diagnose and repair it. See <a href="/dryer-repair/">dryer repair</a>.'],
+  ];
+  const main = [
+    hero({ crumbs, eyebrow: 'Dryer vent cleaning', h1: '<span class="b">Dryer Vent Cleaning</span> in Portland &amp; Milwaukie, OR',
+      sub: 'Clean the lint out of your dryer vent so clothes dry faster and the dryer runs cooler. Licensed, bonded & insured.',
+      img: { src: vent.image, w: vent.imageW, h: vent.imageH, alt: 'Dryer vent cleaning' } }),
+    benefits([
+      ['f-coins', 'Price Agreed Upfront', 'You know the price before we start'],
+      ['f-shield', 'Licensed & Insured', `Bonded and insured, ${site.license}`],
+      ['f-wrench', 'Dryer Repair Too', 'We fix the dryer if something is wrong'],
+      ['f-pin', `Local Since ${site.since}`, 'Serving Milwaukie and Portland, OR'],
+    ]),
+    `<section class="sec" id="why"><div class="wrap">
+      <h2 class="sec-title">Why clean your dryer vent</h2>
+      <p class="sec-lead">Every load leaves lint behind in the vent line. Over time it builds up and blocks the airflow.</p>
+      <div class="why">${vent.why.map((w) => `<div class="why-c"><b>${esc(w.t)}</b><p>${esc(w.d)}</p></div>`).join('')}</div>
+    </div></section>`,
+    `<section class="sec" id="signs"><div class="wrap">
+      <h2 class="sec-title">Signs your dryer vent is clogged</h2>
+      <ul class="problems">${probItems(vent.signs, ' warn')}</ul>
+      <div class="prob-cta"><a class="btn" href="${esc(site.zenbookerUrl)}" data-book>Book Vent Cleaning</a><p>Noticed one of these? Book a cleaning.</p></div>
+    </div></section>`,
+    `<section class="sec" id="included"><div class="wrap"><div class="extra">
+      <h2>What's included</h2>
+      <ul>${vent.included.map((i) => `<li><svg aria-hidden="true"><use href="#chk"/></svg><span>${esc(i)}</span></li>`).join('')}</ul>
+      <div class="price-note"><b>Price agreed upfront</b><p>The price depends on your vent line. We tell you the price before any work starts.</p></div>
+    </div></div></section>`,
+    howSection('dryer and vent line'),
+    reviewsSection(vent.reviews),
+    areaSection('We clean dryer vents in Milwaukie, Portland and nearby cities.'),
+    faqSection(faqs),
+    finalCta('Book your dryer vent cleaning'),
+  ].join('\n');
+  render({
+    path: vent.path,
+    title: 'Dryer Vent Cleaning Portland & Milwaukie, OR | Home-Serv',
+    description: 'Dryer vent cleaning in Portland & Milwaukie, OR. Faster drying, less overheating and lower fire risk. Price agreed upfront. Book online 24/7.',
+    graph: [businessSchema(), { '@type': 'Service', name: vent.name, serviceType: 'Dryer vent cleaning', url: site.baseUrl + vent.path, provider: { '@id': BIZ_ID }, areaServed: ['Portland, OR', 'Milwaukie, OR'] }, faqSchema(faqs), breadcrumbSchema(crumbs)],
+    main,
+  });
+}
+
+/* ---------- thank-you, privacy, 404 ---------- */
+function thankYouPage() {
+  const t = site.tracking;
+  let pageScript = '';
+  if (t.gtagId && t.bookingConversionLabel) {
+    pageScript = `<script>(function(){var p=new URLSearchParams(location.search);var id=p.get('transaction_id')||p.get('booking_id')||p.get('job_id')||p.get('appointment_id')||p.get('id')||'';var key='hs_conv_'+(id||'noid');try{if(sessionStorage.getItem(key))return;sessionStorage.setItem(key,'1');}catch(e){}var ev={send_to:'${esc(t.gtagId)}/${esc(t.bookingConversionLabel)}'};if(id)ev.transaction_id=id;if(typeof gtag==='function')gtag('event','conversion',ev);})();</script>`;
+  } else {
+    pageScript = '<!-- Booking conversion: set site.tracking.gtagId and bookingConversionLabel in src/data.json and run node build.mjs -->';
+  }
+  render({
+    path: '/thank-you/', title: 'Thank You | Home-Serv Appliance Repair', description: 'Your appointment request is received.',
+    robots: 'noindex, follow', canonical: false, sitemap: false, pageScript,
+    main: `<section class="simple"><div class="wrap"><div class="simple-box">
+      <svg class="ok-ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#chk"/></svg>
+      <h1>Thank you!</h1>
+      <p>Your appointment request is received. We'll confirm shortly.</p>
+      <p>Questions? Call or text <b>${esc(site.phone)}</b> · Mon–Fri 9 AM – 5 PM</p>
+      <div class="simple-ctas"><a class="btn line" href="tel:${site.phoneE164}"><svg aria-hidden="true"><use href="#phone"/></svg>Call ${esc(site.phone)}</a><a class="btn" href="/">Back to home</a></div>
+    </div></div></section>`,
+  });
+}
+
+function notFoundPage() {
+  render({
+    path: '/404.html', file: '404.html', title: 'Page Not Found | Home-Serv Appliance Repair', description: 'This page does not exist.',
+    robots: 'noindex, follow', canonical: false, sitemap: false,
+    main: `<section class="simple"><div class="wrap"><div class="simple-box">
+      <h1>Page not found</h1>
+      <p>This page doesn't exist or has moved. You can still book a repair online or call us.</p>
+      <div class="simple-ctas"><a class="btn" href="${esc(site.zenbookerUrl)}" data-book><svg aria-hidden="true"><use href="#cal"/></svg>Book Online</a><a class="btn line" href="tel:${site.phoneE164}"><svg aria-hidden="true"><use href="#phone"/></svg>Call ${esc(site.phone)}</a></div>
+      <div class="simple-links">${Object.entries(appliances).map(([k, a]) => `<a href="/${k}-repair/">${esc(appName(a))} Repair</a>`).join('')}<a href="${vent.path}">${esc(vent.name)}</a><a href="/">Home</a></div>
+    </div></div></section>`,
+  });
+}
+
+function privacyPage() {
+  const s = esc(site.name), e = esc(site.email);
+  render({
+    path: '/privacy-policy/', title: 'Privacy Policy | Home-Serv Appliance Repair', description: `How ${site.name} collects and uses your information.`,
+    main: `<div class="wrap"><article class="doc">
+      <h1>Privacy Policy</h1>
+      <p class="upd">Last updated: ${new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+      <p>This policy explains what information ${s} ("we", "us") collects when you visit this website or book a service, and how we use it.</p>
+      <h2>Information we collect</h2>
+      <ul>
+        <li><b>Booking details.</b> When you book online, you enter your name, phone number, email, service address, the appliance and a description of the problem. Online booking is handled by Zenbooker, our scheduling provider.</li>
+        <li><b>Calls, texts and emails.</b> If you contact us, we keep your phone number or email and the details you share so we can schedule and complete the service.</li>
+        <li><b>Website usage data.</b> Like most websites, we and our providers collect technical data such as your IP address, browser type, pages visited, the page you came from and ad click identifiers (for example, gclid).</li>
+      </ul>
+      <h2>Cookies and advertising</h2>
+      <p>We use Google Ads and the Google tag to measure which ads lead to bookings and calls. These tools use cookies and similar technologies. Zenbooker may also use cookies to record how you found us when you book. You can block or delete cookies in your browser settings. You can control personalized Google ads at <a href="https://adssettings.google.com" target="_blank" rel="noopener">adssettings.google.com</a>. Learn how Google uses data at <a href="https://policies.google.com/technologies/partner-sites" target="_blank" rel="noopener">policies.google.com/technologies/partner-sites</a>.</p>
+      <h2>How we use your information</h2>
+      <ul>
+        <li>To schedule appointments, perform repairs and contact you about your service.</li>
+        <li>To provide estimates, invoices and warranty service.</li>
+        <li>To measure and improve our website and advertising.</li>
+      </ul>
+      <h2>Sharing</h2>
+      <p>We do not sell your personal information. We share it only with service providers that help us run our business, such as Zenbooker (scheduling) and Google (advertising and measurement), or when required by law.</p>
+      <h2>Retention</h2>
+      <p>We keep booking and service records as long as needed to provide the service, honor warranties and meet legal and tax requirements.</p>
+      <h2>Your choices</h2>
+      <p>You can ask us to access, correct or delete your personal information by emailing <a href="mailto:${e}">${e}</a>. We will respond within a reasonable time.</p>
+      <h2>Children</h2>
+      <p>This website is not directed to children under 13, and we do not knowingly collect their information.</p>
+      <h2>Changes</h2>
+      <p>We may update this policy. The date at the top shows when it last changed.</p>
+      <h2>Contact</h2>
+      <p>${s} · <a href="mailto:${e}">${e}</a> · <a href="tel:${site.phoneE164}">${esc(site.phone)}</a></p>
+    </article></div>`,
+  });
+}
+
+/* ---------- homepage head refresh ---------- */
+function refreshHomepage() {
+  const file = join(ROOT, 'index.html');
+  let html = readFileSync(file, 'utf8');
+  const block = `<!-- HS:HEAD (generated by build.mjs, do not edit by hand) -->
+<link rel="canonical" href="${site.baseUrl}/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="${esc(site.name)}">
+<meta property="og:title" content="Appliance Repair in Portland & Milwaukie, OR | Home-Serv">
+<meta property="og:url" content="${site.baseUrl}/">
+<meta property="og:image" content="${site.baseUrl}/assets/img/og-image.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/png" sizes="48x48" href="/assets/img/favicon.png">
+<link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.png">
+<meta name="theme-color" content="#001846">
+${trackingBlock()}
+${schemaTag([businessSchema(), { '@type': 'WebSite', name: site.name, url: site.baseUrl + '/' }])}
+<!-- /HS:HEAD -->`;
+  const re = /<!-- HS:HEAD[\s\S]*?<!-- \/HS:HEAD -->/;
+  if (!re.test(html)) throw new Error('index.html: HS:HEAD markers not found');
+  html = html.replace(re, () => block);
+  writeFileSync(file, html);
+  pages.unshift({ path: '/', file, sitemap: true, html, isHome: true });
+}
+
+/* ---------- run ---------- */
+// Remove previously generated folders so dropped pages don't linger.
+for (const slug of Object.keys(brands)) rmSync(join(ROOT, slug), { recursive: true, force: true });
+
+for (const [slug, b] of Object.entries(brands)) for (const appKey of b.pages) {
+  if (!appliances[appKey]) throw new Error(`No appliance data for ${appKey}`);
+  appliancePage(appKey, slug);
+}
+for (const appKey of Object.keys(appliances)) appliancePage(appKey);
+ventPage();
+thankYouPage();
+privacyPage();
+notFoundPage();
+refreshHomepage();
+
+writeFileSync(join(ROOT, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${pages.filter((p) => p.sitemap).map((p) => `  <url><loc>${site.baseUrl}${p.path}</loc><lastmod>${TODAY}</lastmod></url>`).join('\n')}
+</urlset>
+`);
+writeFileSync(join(ROOT, 'robots.txt'), `User-agent: *
+Allow: /
+
+Sitemap: ${site.baseUrl}/sitemap.xml
+`);
+
+/* ---------- checks ---------- */
+const errors = [];
+const visible = (h) => h.replace(/<p class="disclaimer">[\s\S]*?<\/p>/g, ' ').replace(/<script[\s\S]*?<\/script>/g, ' ').replace(/<!--[\s\S]*?-->/g, ' ').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
+const ALWAYS_BANNED = [/authori[sz]ed/i, /\bofficial\b/i, /factory[- ]certified/i, /service cent(er|re)/i, /same[- ]day/i, /\bemergenc/i];
+for (const p of pages) {
+  const html = p.html;
+  if (html.includes('#popup:embedcode')) errors.push(`${p.path}: contains #popup:embedcode`);
+  if (/\{\{[A-Z0-9_]+\}\}/.test(html)) errors.push(`${p.path}: unreplaced placeholder`);
+  const text = visible(html);
+  for (const re of ALWAYS_BANNED) if (re.test(text)) errors.push(`${p.path}: banned wording ${re}`);
+  if (!p.isHome && /\bcertified\b/i.test(text)) errors.push(`${p.path}: "certified" on a landing page`);
+  for (const m of text.matchAll(/24\/7/g)) {
+    const before = text.slice(Math.max(0, m.index - 30), m.index);
+    if (!/(online booking|book online|booking)\s*$/i.test(before)) errors.push(`${p.path}: "24/7" outside "Online booking 24/7": …${before}24/7`);
+  }
+  for (const m of html.matchAll(/(?:href|src)="(\/[^"#?]*)/g)) {
+    const u = m[1];
+    const f = u.endsWith('/') ? join(ROOT, u, 'index.html') : join(ROOT, u);
+    if (!existsSync(f)) errors.push(`${p.path}: broken internal link ${u}`);
+    if (!u.endsWith('/') && !/\.[a-z0-9]+$/i.test(u)) errors.push(`${p.path}: internal link without trailing slash ${u}`);
+  }
+  for (const m of html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)) {
+    try { JSON.parse(m[1]); } catch { errors.push(`${p.path}: invalid JSON-LD`); }
+  }
+}
+const generated = pages.filter((p) => !p.isHome).length;
+console.log(`Built ${generated} pages + homepage head refresh = ${generated + 1} pages total. Sitemap: ${pages.filter((p) => p.sitemap).length} URLs.`);
+if (errors.length) { console.error('\nCHECKS FAILED:\n' + errors.map((e) => '  ' + e).join('\n')); process.exit(1); }
+console.log('All checks passed.');

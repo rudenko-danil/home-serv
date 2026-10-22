@@ -10,7 +10,7 @@ import { fileURLToPath } from 'node:url';
 const ROOT = dirname(fileURLToPath(import.meta.url));
 const data = JSON.parse(readFileSync(join(ROOT, 'src/data.json'), 'utf8'));
 const TEMPLATE = readFileSync(join(ROOT, 'src/templates/page.html'), 'utf8');
-const { site, serviceArea, brands, appliances, reviews, ventCleaning: vent } = data;
+const { site, serviceArea, brands, appliances, reviews, rangeHood: hood } = data;
 const YEAR = new Date().getFullYear();
 const TODAY = new Date().toISOString().slice(0, 10);
 
@@ -65,7 +65,7 @@ const schemaTag = (graph) => `<script type="application/ld+json">${JSON.stringif
 /* ---------- section builders ---------- */
 const footerServices = () =>
   Object.entries(appliances).map(([k, a]) => `<li><a href="/${k}-repair/">${esc(appName(a))} Repair</a></li>`).join('') +
-  `<li><a href="${vent.path}">${esc(vent.name)}</a></li>`;
+  `<li><a href="${hood.repair.path}">Range Hoods</a></li>`;
 
 function hero({ crumbs, eyebrow, h1, sub, img }) {
   return `<section class="hero">
@@ -130,13 +130,13 @@ const chipsSection = ({ id, title, lead, items }) => `<section class="sec" id="$
       <ul class="chips">${items.map((i) => `<li>${i.href ? `<a href="${i.href}">${esc(i.text)}</a>` : `<span>${esc(i.text)}</span>`}</li>`).join('')}</ul>
     </div></section>`;
 
-function howSection(thing) {
+function howSection(thing, step2 = null, step3 = null) {
   return `<section class="sec" id="how"><div class="wrap">
       <h2 class="sec-title">How it works</h2>
       <div class="steps">
         <div class="step"><span class="step-n" aria-hidden="true">1</span><div class="step-dot">1</div><h3>Book an appointment</h3><p>Book online 24/7 or call / text <b>${esc(site.phone)}</b> Mon–Fri 9 AM – 5 PM. Tell us the appliance, brand and what's going on.</p></div>
-        <div class="step"><span class="step-n" aria-hidden="true">2</span><div class="step-dot">2</div><h3>Diagnostics</h3><p>The technician checks the ${esc(thing)}, explains the problem and agrees the price with you before any work starts. If a part is needed, we order it.</p></div>
-        <div class="step"><span class="step-n" aria-hidden="true">3</span><div class="step-dot">3</div><h3>Repair</h3><p>We complete the work as quickly as possible. Payment of the agreed amount is due when the job is done.</p></div>
+        <div class="step"><span class="step-n" aria-hidden="true">2</span><div class="step-dot">2</div><h3>${step2 ? esc(step2[0]) : 'Diagnostics'}</h3><p>${step2 ? esc(step2[1]) : `The technician checks the ${esc(thing)}, explains the problem and agrees the price with you before any work starts. If a part is needed, we order it.`}</p></div>
+        <div class="step"><span class="step-n" aria-hidden="true">3</span><div class="step-dot">3</div><h3>${step3 ? esc(step3[0]) : 'Repair'}</h3><p>${step3 ? esc(step3[1]) : 'We complete the work as quickly as possible. Payment of the agreed amount is due when the job is done.'}</p></div>
       </div>
     </div></section>`;
 }
@@ -285,52 +285,95 @@ function appliancePage(appKey, brandSlug = null) {
   });
 }
 
-/* ---------- dryer vent cleaning ---------- */
-function ventPage() {
-  const crumbs = [{ name: 'Home', href: '/' }, { name: vent.name, href: vent.path }];
+/* ---------- range hoods: repair + installation ---------- */
+const HOOD_DISCLAIMER = `${site.name} is an independent repair company and is not affiliated with, authorized or endorsed by any of the brands listed. All brand names and trademarks are the property of their respective owners.`;
+const hoodBrandsSection = (lead) => chipsSection({ id: 'brands', title: 'Brands we repair', lead,
+  items: hood.brands.map((b) => ({ text: b })).concat([{ text: 'and most other brands' }]) });
+const hoodImg = { src: hood.image, w: hood.imageW, h: hood.imageH, alt: 'Kitchen range hood' };
+const hoodService = (name, path) => ({ '@type': 'Service', name, serviceType: name, url: site.baseUrl + path, provider: { '@id': BIZ_ID }, areaServed: ['Portland, OR', 'Milwaukie, OR'] });
+
+function hoodRepairPage() {
+  const r = hood.repair;
+  const crumbs = [{ name: 'Home', href: '/' }, { name: 'Range Hood Repair', href: r.path }];
   const faqs = [
-    ['How often should a dryer vent be cleaned?', 'Most homes need it about once a year. Clean it sooner if you notice the warning signs above or if you dry a lot of laundry.'],
-    ['How much does dryer vent cleaning cost?', 'The price depends on the length and layout of your vent line. We agree on the price upfront, before any work starts.'],
-    ['How fast can you come out?', FAQ_FAST],
-    ['Do you also repair dryers?', 'Yes. If the dryer itself has a problem, we can diagnose and repair it. See <a href="/dryer-repair/">dryer repair</a>.'],
+    ['How much does range hood diagnostics cost?', 'Diagnostics is <b>$99 per appliance</b>. The fee is waived if you hire us for the repair.'],
+    ['What warranty do you give on range hood repairs?', 'Every repair comes with a <b>60-day warranty on parts and labor</b>.'],
+    ['Do you repair Broan-NuTone, Zephyr and other range hood brands?', `Yes. We repair ${esc(joinList(hood.brands))} range hoods, and most other brands.`],
+    ['Do you also install new range hoods?', `Yes. If repair doesn't make sense, we can replace your hood. See <a href="${hood.install.path}">range hood installation</a>.`],
   ];
   const main = [
-    hero({ crumbs, eyebrow: 'Dryer vent cleaning', h1: '<span class="b">Dryer Vent Cleaning</span> in Portland &amp; Milwaukie, OR',
-      sub: 'Clean the lint out of your dryer vent so clothes dry faster and the dryer runs cooler. Licensed, bonded & insured.',
-      img: { src: vent.image, w: vent.imageW, h: vent.imageH, alt: 'Dryer vent cleaning' } }),
-    benefits([
-      ['f-coins', 'Price Agreed Upfront', 'You know the price before we start'],
-      ['f-shield', 'Licensed & Insured', `Bonded and insured, ${site.license}`],
-      ['f-wrench', 'Dryer Repair Too', 'We fix the dryer if something is wrong'],
-      ['f-pin', `Local Since ${site.since}`, 'Serving Milwaukie and Portland, OR'],
-    ]),
-    `<section class="sec" id="why"><div class="wrap">
-      <h2 class="sec-title">Why clean your dryer vent</h2>
-      <p class="sec-lead">Every load leaves lint behind in the vent line. Over time it builds up and blocks the airflow.</p>
-      <div class="why">${vent.why.map((w) => `<div class="why-c"><b>${esc(w.t)}</b><p>${esc(w.d)}</p></div>`).join('')}</div>
-    </div></section>`,
-    `<section class="sec" id="signs"><div class="wrap">
-      <h2 class="sec-title">Signs your dryer vent is clogged</h2>
-      <ul class="problems">${probItems(vent.signs, ' warn')}</ul>
-      <div class="prob-cta"><a class="btn" href="${esc(site.zenbookerUrl)}" data-book>Book Vent Cleaning</a><p>Noticed one of these? Book a cleaning.</p></div>
-    </div></section>`,
-    `<section class="sec" id="included"><div class="wrap"><div class="extra">
-      <h2>What's included</h2>
-      <ul>${vent.included.map((i) => `<li><svg aria-hidden="true"><use href="#chk"/></svg><span>${esc(i)}</span></li>`).join('')}</ul>
-      <div class="price-note"><b>Price agreed upfront</b><p>The price depends on your vent line. We tell you the price before any work starts.</p></div>
-    </div></div></section>`,
-    howSection('dryer and vent line'),
-    reviewsSection(vent.reviews),
-    areaSection('We clean dryer vents in Milwaukie, Portland and nearby cities.'),
+    hero({ crumbs, eyebrow: 'Range hood repair', h1: '<span class="b">Range Hood Repair</span> in Portland &amp; Milwaukie, OR',
+      sub: 'Kitchen hood fan, light, motor and control repair. Licensed, bonded & insured.', img: hoodImg }),
+    benefits(APPLIANCE_BENEFITS),
+    problemsSection({ title: 'Common range hood problems we fix', lead: 'Our technicians repair these kitchen hood issues every week.', items: r.problems, parts: r.parts }),
+    chipsSection({ id: 'types', title: 'Types we service', lead: 'We repair all common range hood types:', items: r.types.map((t) => ({ text: t })) }),
+    hoodBrandsSection('We repair range hoods from all major brands, including:'),
+    extraSection({ title: 'Need a new range hood installed?', lead: 'If your hood is too old or too costly to fix, we can remove it and install a new one.',
+      items: ['Under-cabinet, wall-mount and island hoods', 'Uses your existing ductwork and wiring', 'Price agreed before work starts'],
+      link: { href: hood.install.path, text: 'Range Hood Installation' } }),
+    howSection('range hood'),
+    reviewsSection(r.reviews),
+    areaSection('We come to your home for range hood repair in Milwaukie, Portland and nearby cities.'),
     faqSection(faqs),
-    finalCta('Book your dryer vent cleaning'),
+    finalCta('Need your range hood fixed?'),
   ].join('\n');
   render({
-    path: vent.path,
-    title: 'Dryer Vent Cleaning Portland & Milwaukie, OR | Home-Serv',
-    description: 'Dryer vent cleaning in Portland & Milwaukie, OR. Faster drying, less overheating and lower fire risk. Price agreed upfront. Book online 24/7.',
-    graph: [businessSchema(), { '@type': 'Service', name: vent.name, serviceType: 'Dryer vent cleaning', url: site.baseUrl + vent.path, provider: { '@id': BIZ_ID }, areaServed: ['Portland, OR', 'Milwaukie, OR'] }, faqSchema(faqs), breadcrumbSchema(crumbs)],
-    main,
+    path: r.path,
+    title: 'Range Hood Repair Portland & Milwaukie, OR | Home-Serv',
+    description: 'Range hood repair in Portland & Milwaukie, OR: fan, motor, light and control repair for Broan-NuTone, Zephyr, ZLINE and other brands. 60-day warranty. Book online 24/7.',
+    graph: [businessSchema(), { ...hoodService('Range hood repair', r.path), offers: { '@type': 'Offer', name: 'Diagnostic visit', price: '99', priceCurrency: 'USD', description: 'Waived if you hire us for the repair' } }, faqSchema(faqs), breadcrumbSchema(crumbs)],
+    main, disclaimer: HOOD_DISCLAIMER,
+  });
+}
+
+function hoodInstallPage() {
+  const ins = hood.install;
+  const crumbs = [{ name: 'Home', href: '/' }, { name: 'Range Hood Installation', href: ins.path }];
+  const faqs = [
+    ['How much does range hood installation cost?', 'The price depends on the hood and your kitchen setup. We agree on the price before any work starts.'],
+    ['Can you run a new duct or add a new electrical line?', esc(ins.scopeNote)],
+    ['How fast can you come out?', FAQ_FAST],
+    ['Do you also repair range hoods?', `Yes. Often a hood can be fixed instead of replaced. See <a href="${hood.repair.path}">range hood repair</a>.`],
+  ];
+  const main = [
+    hero({ crumbs, eyebrow: 'Range hood installation', h1: '<span class="b">Range Hood Installation</span> in Portland &amp; Milwaukie, OR',
+      sub: 'Professional install and replacement of under-cabinet, wall and island range hoods.', img: hoodImg }),
+    benefits([
+      ['f-coins', 'Price Agreed First', 'You approve the price before any work starts'],
+      ['f-shield', 'Licensed & Insured', `Bonded and insured, ${site.license}`],
+      ['f-wrench', 'Repair Too', "We'll tell you if your old hood can be fixed"],
+      ['f-pin', `Local Since ${site.since}`, 'Serving Milwaukie and Portland, OR'],
+    ]),
+    `<section class="sec" id="included"><div class="wrap"><div class="extra">
+      <h2>What's included</h2>
+      <ul>${ins.included.map((i) => `<li><svg aria-hidden="true"><use href="#chk"/></svg><span>${esc(i)}</span></li>`).join('')}</ul>
+      <p>${esc(ins.scopeNote)}</p>
+      <div class="price-note"><b>Price agreed before work starts</b><p>The price depends on the hood and your kitchen setup. You approve it before we begin.</p></div>
+    </div></div></section>`,
+    `<section class="sec" id="replacement"><div class="wrap">
+      <h2 class="sec-title">Range hood replacement</h2>
+      <p class="sec-lead">Repair is often the cheaper option. Replacing the hood makes more sense when:</p>
+      <ul class="problems">${probItems(ins.replace)}</ul>
+      <div class="prob-cta"><a class="btn" href="${esc(site.zenbookerUrl)}" data-book>Book Installation</a><p>Not sure? We'll tell you whether repair or replacement makes more sense.</p></div>
+    </div></section>`,
+    chipsSection({ id: 'types', title: 'Types we install', items: ins.types.map((t) => ({ text: t })) }),
+    hoodBrandsSection('We install and repair range hoods from all major brands, including:'),
+    extraSection({ title: 'Hood just needs a fix?', lead: 'A noisy fan, a dead light or unresponsive controls can usually be repaired.',
+      items: ['$99 diagnostic, waived if you hire us for the repair', '60-day warranty on parts and labor'],
+      link: { href: hood.repair.path, text: 'Range Hood Repair' } }),
+    howSection('range hood', ['Estimate', 'We look at your old hood, the new one and the existing ductwork and wiring, then agree the price with you before any work starts.'],
+      ['Installation', 'We remove the old hood, install the new one and test it. Payment of the agreed amount is due when the job is done.']),
+    reviewsSection(ins.reviews),
+    areaSection('We install range hoods in Milwaukie, Portland and nearby cities.'),
+    faqSection(faqs),
+    finalCta('Book your range hood installation'),
+  ].join('\n');
+  render({
+    path: ins.path,
+    title: 'Range Hood Installation Portland & Milwaukie, OR | Home-Serv',
+    description: 'Range hood installation and replacement in Portland & Milwaukie, OR: under-cabinet, wall-mount and island hoods. Price agreed before work starts. Book online 24/7.',
+    graph: [businessSchema(), hoodService('Range hood installation', ins.path), faqSchema(faqs), breadcrumbSchema(crumbs)],
+    main, disclaimer: HOOD_DISCLAIMER,
   });
 }
 
@@ -364,7 +407,7 @@ function notFoundPage() {
       <h1>Page not found</h1>
       <p>This page doesn't exist or has moved. You can still book a repair online or call us.</p>
       <div class="simple-ctas"><a class="btn" href="${esc(site.zenbookerUrl)}" data-book><svg aria-hidden="true"><use href="#cal"/></svg>Book Online</a><a class="btn line" href="tel:${site.phoneE164}"><svg aria-hidden="true"><use href="#phone"/></svg>Call ${esc(site.phone)}</a></div>
-      <div class="simple-links">${Object.entries(appliances).map(([k, a]) => `<a href="/${k}-repair/">${esc(appName(a))} Repair</a>`).join('')}<a href="${vent.path}">${esc(vent.name)}</a><a href="/">Home</a></div>
+      <div class="simple-links">${Object.entries(appliances).map(([k, a]) => `<a href="/${k}-repair/">${esc(appName(a))} Repair</a>`).join('')}<a href="${hood.repair.path}">Range Hood Repair</a><a href="${hood.install.path}">Range Hood Installation</a><a href="/">Home</a></div>
     </div></div></section>`,
   });
 }
@@ -435,13 +478,15 @@ ${schemaTag([businessSchema(), { '@type': 'WebSite', name: site.name, url: site.
 /* ---------- run ---------- */
 // Remove previously generated folders so dropped pages don't linger.
 for (const slug of Object.keys(brands)) rmSync(join(ROOT, slug), { recursive: true, force: true });
+rmSync(join(ROOT, 'dryer-vent-cleaning'), { recursive: true, force: true }); // service removed: the URL now returns 404
 
 for (const [slug, b] of Object.entries(brands)) for (const appKey of b.pages) {
   if (!appliances[appKey]) throw new Error(`No appliance data for ${appKey}`);
   appliancePage(appKey, slug);
 }
 for (const appKey of Object.keys(appliances)) appliancePage(appKey);
-ventPage();
+hoodRepairPage();
+hoodInstallPage();
 thankYouPage();
 privacyPage();
 notFoundPage();
@@ -461,10 +506,11 @@ Sitemap: ${site.baseUrl}/sitemap.xml
 /* ---------- checks ---------- */
 const errors = [];
 const visible = (h) => h.replace(/<p class="disclaimer">[\s\S]*?<\/p>/g, ' ').replace(/<script[\s\S]*?<\/script>/g, ' ').replace(/<!--[\s\S]*?-->/g, ' ').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
-const ALWAYS_BANNED = [/authori[sz]ed/i, /\bofficial\b/i, /factory[- ]certified/i, /service cent(er|re)/i, /same[- ]day/i, /\bemergenc/i];
+const ALWAYS_BANNED = [/authori[sz]ed/i, /\bofficial\b/i, /factory[- ]certified/i, /service cent(er|re)/i, /same[- ]day/i, /\bemergenc/i, /vent[- ]cleaning/i];
 for (const p of pages) {
   const html = p.html;
   if (html.includes('#popup:embedcode')) errors.push(`${p.path}: contains #popup:embedcode`);
+  if (html.includes('dryer-vent-cleaning')) errors.push(`${p.path}: link to removed /dryer-vent-cleaning/`);
   if (/\{\{[A-Z0-9_]+\}\}/.test(html)) errors.push(`${p.path}: unreplaced placeholder`);
   const text = visible(html);
   for (const re of ALWAYS_BANNED) if (re.test(text)) errors.push(`${p.path}: banned wording ${re}`);

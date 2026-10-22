@@ -297,19 +297,6 @@
         "Stackable washer-dryer units",
         "Compact and ventless dryers"
       ],
-      "extra": {
-        "title": "Slow drying? Check the vent too",
-        "lead": "A clogged or crushed dryer vent is a common reason a dryer overheats or takes too long. We clean dryer vents as well.",
-        "items": [
-          "Clothes still damp after a full cycle",
-          "Dryer or laundry room gets very hot",
-          "Lint collects around the door or the outside vent flap"
-        ],
-        "link": {
-          "href": "/dryer-vent-cleaning/",
-          "text": "Dryer vent cleaning"
-        }
-      },
       "reviews": [
         "av6",
         "av4",
@@ -635,67 +622,22 @@
         "av2",
         "av3",
         "av9"
-      ]
+      ],
+      "extra": {
+        "title": "Range hood not working?",
+        "lead": "We repair kitchen range hoods too: fans, motors, lights and controls.",
+        "items": [
+          "Fan won't turn on or runs weak",
+          "Hood light not working",
+          "Noisy or rattling fan",
+          "Controls not responding"
+        ],
+        "link": {
+          "href": "/range-hood-repair/",
+          "text": "Range Hood Repair"
+        }
+      }
     }
-  },
-  "ventCleaning": {
-    "path": "/dryer-vent-cleaning/",
-    "name": "Dryer Vent Cleaning",
-    "image": "/assets/img/dryer.webp",
-    "imageW": 188,
-    "imageH": 228,
-    "why": [
-      {
-        "t": "Faster drying",
-        "d": "A clear vent lets moist air out, so clothes dry in one cycle again."
-      },
-      {
-        "t": "Less overheating",
-        "d": "Restricted airflow makes the dryer run hot and wears out its heating parts."
-      },
-      {
-        "t": "Lower fire risk",
-        "d": "Lint is highly flammable. Clogged vents are a common cause of dryer fires."
-      }
-    ],
-    "signs": [
-      {
-        "t": "Clothes take more than one cycle",
-        "d": "Loads come out damp after a full drying cycle."
-      },
-      {
-        "t": "Dryer is hot to the touch",
-        "d": "The top or sides of the dryer get very hot while it runs."
-      },
-      {
-        "t": "Burning smell",
-        "d": "A smell of hot lint or burning while the dryer runs."
-      },
-      {
-        "t": "Lint around the door or outside flap",
-        "d": "Lint builds up where it shouldn't be."
-      },
-      {
-        "t": "Outside vent flap doesn't open",
-        "d": "Little or no airflow at the exterior vent while the dryer runs."
-      },
-      {
-        "t": "Humid laundry room",
-        "d": "The room gets warm and steamy during drying."
-      }
-    ],
-    "included": [
-      "Inspection of the dryer connection and the vent line",
-      "Lint removal from the duct and the exterior vent hood",
-      "Airflow check after cleaning",
-      "Recommendations if the duct is crushed, damaged or too long"
-    ],
-    "reviews": [
-      "av9",
-      "av4",
-      "av3",
-      "av6"
-    ]
   },
   "reviews": {
     "av1": {
@@ -757,6 +699,124 @@
       "name": "Steven Thoma",
       "when": "3 months ago",
       "text": "Responsive, quick service, provided great explanations of the issues and fixed it the washing machine quickly"
+    }
+  },
+  "rangeHood": {
+    "image": "/assets/img/range-hood.svg",
+    "imageW": 240,
+    "imageH": 240,
+    "brands": [
+      "Broan-NuTone",
+      "GE",
+      "Whirlpool",
+      "KitchenAid",
+      "ZLINE",
+      "Zephyr",
+      "BEST",
+      "Thermador",
+      "Vent-A-Hood",
+      "Bosch",
+      "Samsung"
+    ],
+    "repair": {
+      "path": "/range-hood-repair/",
+      "problems": [
+        {
+          "t": "Range hood fan not working",
+          "d": "The fan won't turn on or stops after a few seconds."
+        },
+        {
+          "t": "Fan motor noisy, slow or burned out",
+          "d": "Fan motor repair and replacement."
+        },
+        {
+          "t": "Hood light not working",
+          "d": "Bulb, socket, switch or light board problems."
+        },
+        {
+          "t": "Buttons or touch panel not responding",
+          "d": "Controls, switches or the control board don't react."
+        },
+        {
+          "t": "Weak suction, poor ventilation",
+          "d": "Smoke and cooking smells stay in the kitchen."
+        },
+        {
+          "t": "Rattling, vibration or loud noise",
+          "d": "Loose blower, worn motor bearings or a damaged fan wheel."
+        },
+        {
+          "t": "Grease filter and damper issues",
+          "d": "Clogged filters or a damper that sticks shut."
+        }
+      ],
+      "parts": [
+        "fan motor",
+        "blower wheel",
+        "capacitor",
+        "light sockets",
+        "switches",
+        "control board",
+        "damper",
+        "grease filters"
+      ],
+      "types": [
+        "Under-cabinet hoods",
+        "Wall-mount (chimney) hoods",
+        "Island hoods",
+        "Insert / built-in hoods",
+        "Downdraft vents"
+      ],
+      "reviews": [
+        "av10",
+        "av2",
+        "av9",
+        "av3"
+      ]
+    },
+    "install": {
+      "path": "/range-hood-installation/",
+      "included": [
+        "Removal of the old range hood",
+        "Mounting the new hood",
+        "Electrical hookup to the existing wiring",
+        "Connection to the existing ductwork",
+        "Testing the fan speeds and lights"
+      ],
+      "scopeNote": "Installation uses your existing ductwork and wiring. New duct runs through a wall or roof and new electrical circuits are not included.",
+      "replace": [
+        {
+          "t": "The fan motor is burned out on an older hood",
+          "d": "When a new motor costs close to a new hood, replacement is the better buy."
+        },
+        {
+          "t": "Parts are no longer available",
+          "d": "Many older models have discontinued motors and control boards."
+        },
+        {
+          "t": "The hood is too weak for your cooktop",
+          "d": "Smoke and grease escape even on the highest fan speed."
+        },
+        {
+          "t": "You're remodeling or changing the cooktop",
+          "d": "A new hood should match the width and output of the new cooktop."
+        },
+        {
+          "t": "Rust, dents or worn-out controls",
+          "d": "When several parts are failing at once, a new hood costs less in the long run."
+        }
+      ],
+      "types": [
+        "Under-cabinet hoods",
+        "Wall-mount (chimney) hoods",
+        "Island hoods"
+      ],
+      "reviews": [
+        "av10",
+        "av4",
+        "av9",
+        "av6"
+      ]
     }
   }
 }

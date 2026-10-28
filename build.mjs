@@ -36,6 +36,10 @@ function trackingBlock() {
     parts.push('<!-- Google tag: set site.tracking.gtagId in src/data.json and run node build.mjs -->');
   }
   parts.push(`<script>window.HS=${JSON.stringify(cfg)};</script>`);
+  // Ad click params (utm_* from the Google Ads tracking template, gclid from auto-tagging):
+  // remembered for the visit and appended to every Zenbooker link and embed URL,
+  // so the source reaches the booking even if the visitor books from another page.
+  parts.push('<script>(function(){var K=["utm_source","utm_medium","utm_campaign","utm_term","utm_content","gclid"],q=new URLSearchParams(location.search),s={},f=false;K.forEach(function(k){if(q.get(k))f=true});if(f){K.forEach(function(k){var v=q.get(k);if(v)s[k]=v});try{sessionStorage.setItem("hs_utm",JSON.stringify(s))}catch(e){}}else{try{s=JSON.parse(sessionStorage.getItem("hs_utm")||"{}")}catch(e){s={}}}if(!Object.keys(s).length)return;function add(u){try{var x=new URL(u);Object.keys(s).forEach(function(k){x.searchParams.set(k,s[k])});return x.toString()}catch(e){return u}}function run(){document.querySelectorAll(\'a[href*="widget.zenbooker.com"]\').forEach(function(a){a.href=add(a.href)});document.querySelectorAll(\'[data-url*="widget.zenbooker.com"]\').forEach(function(w){w.setAttribute("data-url",add(w.getAttribute("data-url")))})}if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",run);else run()})();</script>');
   parts.push('<script>!function(){if(window.Zenbooker&&"function"==typeof window.Zenbooker);else{var e=document.createElement("script");e.src="https://cdn.zenbooker.com/widget/latest/zenbooker.js",document.head.appendChild(e)}}();</script>');
   parts.push('<link rel="stylesheet" href="https://cdn.zenbooker.com/widget/latest/zenbooker.css" media="print" onload="this.media=\'all\'">');
   return parts.join('\n');

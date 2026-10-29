@@ -32,6 +32,10 @@ function trackingBlock() {
   if (t.gtagId) {
     parts.push(`<script async src="https://www.googletagmanager.com/gtag/js?id=${esc(t.gtagId)}"></script>`);
     parts.push(`<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${esc(t.gtagId)}');</script>`);
+    // Soft conversions: clicks on booking buttons and phone links (once per visit each).
+    // Labels come from secondary conversion actions in Google Ads; without a label only a plain event is sent.
+    const sendTo = (label) => label ? `'${esc(t.gtagId)}/${esc(label)}'` : 'null';
+    parts.push(`<script>(function(){var L={book:${sendTo(t.bookClickLabel)},call:${sendTo(t.callClickLabel)}};function fire(kind){var key='hs_click_'+kind;try{if(sessionStorage.getItem(key))return;sessionStorage.setItem(key,'1')}catch(e){}if(typeof gtag!=='function')return;gtag('event',kind==='book'?'book_click':'call_click',{page_path:location.pathname});if(L[kind])gtag('event','conversion',{send_to:L[kind]})}document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('a');if(!a)return;var h=a.getAttribute('href')||'';if(a.hasAttribute('data-book')||h.indexOf('widget.zenbooker.com')>-1)fire('book');else if(h.indexOf('tel:')===0)fire('call')},true)})();</script>`);
   } else {
     parts.push('<!-- Google tag: set site.tracking.gtagId in src/data.json and run node build.mjs -->');
   }

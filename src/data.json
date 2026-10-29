@@ -19,7 +19,9 @@
     },
     "tracking": {
       "gtagId": "AW-753197121",
-      "bookingConversionLabel": null
+      "bookingConversionLabel": null,
+      "bookClickLabel": null,
+      "callClickLabel": null
     }
   },
   "serviceArea": {
